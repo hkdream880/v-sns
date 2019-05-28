@@ -1,22 +1,12 @@
 //login 여부 확인을 위한 미들 웨어
-exports.isLoggedIn = (req, res, next) => {
-  if(req.isAuthenticated()){
-    next();
-  }else{
-    res.status(500).json({
-      code: 500,
-      data: 'need login'
-    })
-  }
-};
+const jwt = require('jsonwebtoken');
 
-exports.isNotLoggedIn = (req, res, next) => {
-  if(!req.isAuthenticated()){
-    next();
-  }else{
-    res.status(500).json({
-      code: 500,
-      data: 'already logined'
-    })
+exports.isLoggedIn = (req) => {
+  try {
+    req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
+    return req.isAuthenticated();
+  } catch (error) {
+    console.log('isLoggedIn catch called');
+    return false;
   }
 };

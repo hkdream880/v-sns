@@ -1,12 +1,11 @@
-
-var vm;
- 
 Vue.use(VueRouter)
 
-vm = new Vue({
+global.vm = new Vue({
   router,
   el: "#app",
   data: {
     showError: false,
   }
 });
+
+commonUtil.getInstance().isLogin();

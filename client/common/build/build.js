@@ -13,6 +13,9 @@ var build = function (){
   _importArr.push(`<script src="./common/lib/bootstrap.bundle.min.js"></script>`);
   _importArr.push(`<script src="./common/lib/bootstrap.min.js"></script>`);
   _importArr.push(`<script src="./common/lib/nprogress.js"></script>`);
+  _importArr.push(`<script src="./common/util/global.js"></script>`);
+  _importArr.push(`<script src="./common/util/request.js"></script>`);
+  _importArr.push(`<script src="./common/util/commonUtil.js"></script>`)
 
 
   _importArr.push(`<script src="./components/timeLineComponent.js"></script>`);
@@ -22,7 +25,7 @@ var build = function (){
   _importArr.push(`<script src="./components/friendListComponet.js"></script>`);
   _importArr.push(`<script src="./components/messageBoxComponent.js"></script>`);
   _importArr.push(`<script src="./routes/mainRouter.js"></script>`);
-  _importArr.push(`<script src="./index.js"></script>`);
+  _importArr.push(`<script src="./init.js"></script>`);
 
   return {
     importArr : _importArr,

@@ -24,6 +24,7 @@ const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     secure: false,
+    maxAge: 60*60*1000,
   }
 })
 // view engine setup

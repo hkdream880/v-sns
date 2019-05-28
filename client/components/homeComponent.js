@@ -43,17 +43,11 @@ var Home = {
   methods: {
     testJoin: function(e){
       e.preventDefault();
-      //alert('test');
-      axios.post('/v1/login',{
-        email: "test@test.com",
-        password: "111122"
+      request('post','/v1/login',{email: "test@test.com",password: "1111"},null,
+      function(res){
+        console.log(res);
+        global.authorizationToken = res.token;
       })
-        .then(function(res){
-          console.log(res);
-        })
-        .catch(function(err){
-          console.log(err);
-        })
     }
   }
 };
