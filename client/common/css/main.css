@@ -1,0 +1,44 @@
+#app {
+   width: 100%;
+   height: 100%;
+}
+
+.v-home {
+   text-align: center;  
+   margin-top: 5%;
+}
+.v-home-chat {
+   margin-top: 5%;
+}
+.v-home-chat .v-chat-btn{
+   
+   margin-left: 5px;
+}
+
+
+.v-reply-others {
+   text-align: left;
+}
+
+.v-reply-mine {
+   text-align: right;
+}
+
+.v-time-line-wraper {
+   margin-top: 20px;
+}
+
+.v-friend-tab-list {
+   display: inline-block;
+}
+
+.v-friend-list {
+   margin-top: 20px;
+}
+.v-profile {
+   width: 45px;
+   height: 45px;
+}
+.v-chat-btn {
+   float: right;
+}

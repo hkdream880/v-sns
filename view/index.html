@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>v-sns</title>
+  <link rel="shortcut icon" href="./common/img/v-sns-favicon.png">
+  <link rel="stylesheet" href="https://cdn.bootcss.com/nprogress/0.2.0/nprogress.css">
+  <link rel="stylesheet" href="./common/css/main.css">
+  <link rel="stylesheet" href="./common/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./common/css/bootstrap-grid.min.css">
+  <link rel="stylesheet" href="./common/css/bootstrap-reboot.min.css">
+</head>
+<body>
+  <div id="app">  
+    <router-view name="header"></router-view>
+    <div class="container">
+      <router-view></router-view>
+    </div>
+  </div>
+<script src="./common/build/build.js"></script>
+<script>
+  build().importArr.forEach((data)=>{
+    document.write(data);
+  })
+  //header footer load
+  // window.onload = function(){
+  //   $('#header').load('./common/html/header.html');
+  // }
+</script>
+</body>
+</html>
