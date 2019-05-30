@@ -19,7 +19,7 @@ passportConfig(passport);
 
 const sessionMiddleware = session({
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: false, //최초 접속 할 때 로그인 하지 않더라도 세션 발행
   secret: process.env.COOKIE_SECRET,
   cookie: {
     httpOnly: true,

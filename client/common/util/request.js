@@ -1,10 +1,4 @@
-var request = function(method, url, param, headers){
-  //axios.post(URL, data, config).then(...)
-  if(!headers){
-      headers =  {
-        authorization : global.authorizationToken,
-      }
-  }
-  
-  return axios[method](url, param, {headers : headers});
+var request = function(method, url, param){
+  global.axiosInstance.defaults.headers.common['authorization'] = commonUtil.getInstance().getSessionStorage('authorizationToken');
+  return global.axiosInstance[method](url, param);
 }

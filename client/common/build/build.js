@@ -14,8 +14,8 @@ var build = function (){
   _importArr.push(`<script src="./common/lib/bootstrap.min.js"></script>`);
   _importArr.push(`<script src="./common/lib/nprogress.js"></script>`);
   _importArr.push(`<script src="./common/util/global.js"></script>`);
-  _importArr.push(`<script src="./common/util/request.js"></script>`);
   _importArr.push(`<script src="./common/util/commonUtil.js"></script>`)
+  _importArr.push(`<script src="./common/util/request.js"></script>`);
 
 
   _importArr.push(`<script src="./components/timeLineComponent.js"></script>`);

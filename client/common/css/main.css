@@ -42,3 +42,7 @@
 .v-chat-btn {
    float: right;
 }
+
+.hide {
+   display: none !important;
+}
