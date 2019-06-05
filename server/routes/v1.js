@@ -40,7 +40,7 @@ router.post('/join', async (req, res, next )=>{
       })
       returnObj.code = 201;
       returnObj.data = {
-        message: 'success'
+        message: 'success',
       };
     }else{
       returnObj.code = 500;
@@ -80,6 +80,14 @@ router.post('/login',(req,res,next)=>{
         console.error(loginError);
         return next(loginError);
       }
+      console.log('login user test !!!');
+      console.log(user)
+      const returnUserInfo = {
+        email: user.email,
+        profile: user.profile,
+        phone: user.phone,
+        regDate: user.DATE,
+      }
       returnObj.code = 201;
       returnObj.data = 'login success';
       returnObj.token = jwt.sign({
@@ -88,6 +96,7 @@ router.post('/login',(req,res,next)=>{
         expiresIn: '1h',
         issuer: 'v-sns'
       });
+      returnObj.info = returnUserInfo;
       return res.status(returnObj.code).json(returnObj);
     });
   })(req, res, next);

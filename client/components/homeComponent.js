@@ -6,9 +6,11 @@ var Home = {
         <div class="card">
           <img src="./common/img/main.jpg" class="card-img-top v-main-img" alt="...">
           <div class="card-body">
-            <h5 class="card-title">V - SNS.{{loginState}}</h5>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">로그인</button>
-            <router-link to="/join" class="btn btn-primary" exact>회원가입</router-link>
+            <h5 class="card-title">V - SNS.</h5>
+            <div class="v-btn-container" v-show="!loginState">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">로그인</button>
+              <router-link to="/join" class="btn btn-primary" exact>회원가입</router-link>
+            </div>
           </div>
         </div>
       </div>
@@ -19,12 +21,12 @@ var Home = {
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title h4" id="mySmallModalLabel">Small modal</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="login_close_btn">
                 <span aria-hidden="true">×</span>
               </button>
               </div>
                 <div class="modal-body">
-                <form @submit.prevent="testJoin">
+                <form @submit.prevent="join">
                   <div class="form-group">
                     <label for="exampleInputEmail1">Email address</label>
                     <input v-model="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
@@ -53,22 +55,26 @@ var Home = {
     }
   },
   methods: {
-    testJoin: function(e){
+    join: function(e){
       request('post','/v1/login',{ email: this.email, password: this.password })
-        .then(function(res){
+        .then($.proxy(function(res){
           if(res.data.code===201){
-            console.log('로그인 성공')
-            global.loginState = true;
-            this.loginState = global.loginState;
+            console.log('로그인 성 공')
+            this.loginState = true;
+            global.loginState = this.loginState ;
             commonUtil.getInstance().setSessionStorage('authorizationToken',res.data.token);
+            $('#login_close_btn').trigger('click');
           }
-        })
+        },this))
         .catch(function(err){
           $('.alert').removeClass('hide')
           setTimeout(function(){
             $('.alert').addClass('hide')
           },3000)
         })
-    }
+    },
+  },
+  computed: {
+    
   }
 };
