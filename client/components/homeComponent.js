@@ -56,22 +56,26 @@ var Home = {
   },
   methods: {
     join: function(e){
-      request('post','/v1/login',{ email: this.email, password: this.password })
-        .then($.proxy(function(res){
-          if(res.data.code===201){
-            console.log('로그인 성 공')
+      //var request = function(method, url, param, success, fail){
+      request('post','/v1/login',{ email: this.email, password: this.password },
+        $.proxy(function(res){
+          if(res.code===201){
+            console.log('로그인 request success')
             this.loginState = true;
             global.loginState = this.loginState ;
-            commonUtil.getInstance().setSessionStorage('authorizationToken',res.data.token);
+            commonUtil.getInstance().setSessionStorage('authorizationToken',res.token);
+            console.log('commonUtil.getInstance().getSessionStorage("authorizationToken"); test');
+            console.log(commonUtil.getInstance().getSessionStorage('authorizationToken'));
             $('#login_close_btn').trigger('click');
           }
-        },this))
-        .catch(function(err){
+        },this),
+        $.proxy(function(err){
           $('.alert').removeClass('hide')
           setTimeout(function(){
             $('.alert').addClass('hide')
           },3000)
-        })
+        },this)
+      )   
     },
   },
   computed: {

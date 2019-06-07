@@ -11,6 +11,7 @@ const passport = require('passport');
 const passportConfig = require('./server/passport')
 const indexRouter = require('./server/routes/index');
 const apiRouter = require('./server/routes/v1');
+const RedisStore = require('connect-redis')(session);
 
 
 const app = express();
@@ -19,13 +20,19 @@ passportConfig(passport);
 
 const sessionMiddleware = session({
   resave: false,
-  saveUninitialized: false, //최초 접속 할 때 로그인 하지 않더라도 세션 발행
+  saveUninitialized: false, //최초 접속 할 때 로그인 하지 않더라도 세션 발행 
   secret: process.env.COOKIE_SECRET,
   cookie: {
     httpOnly: true,
     secure: false,
     maxAge: 60*60*1000,
-  }
+  },
+  store: new RedisStore({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD,
+    logErrors: true,
+  })
 })
 // view engine setup
 app.set('views', path.join(__dirname, 'view'));

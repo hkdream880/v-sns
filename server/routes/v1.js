@@ -1,10 +1,25 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const { isLoggedIn } = require('./loginCheck');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, cb){
+      cb(null, 'uploads/')
+    },
+    filename(req, file, cb){
+      const ext = path.extname(file.originalname);
+      cb(null, path.basename(file.originalname, ext) + new Date().valueOf() + ext);
+    }
+  }),
+  limits: {fieldSize : 5 * 1024 * 1024 }  //5mb 로 용량 제한
+});
+
 
 router.get('/login-check',(req, res, next)=>{
   const result = isLoggedIn(req);
@@ -100,6 +115,19 @@ router.post('/login',(req,res,next)=>{
       return res.status(returnObj.code).json(returnObj);
     });
   })(req, res, next);
+});
+
+router.get('/write',(req, res, next)=>{
+  res.status(200).json({
+    code: 200,
+    data: 'success',
+    param: req.query
+  })
+})
+
+router.get('/image', upload.single('image'), (req, res, next)=>{
+  console.log(req.body, req.file);
+  res.json({url: `/img/${req.file.filename }`});
 });
 
 module.exports = router;

@@ -1,21 +1,16 @@
 var commonUtil = (function() {
   var _instance;
   var _isLogin = function(callback){
-    var authorizationToken = _getSessionStorage('authorizationToken');
     console.log('_isLogin check called');
-    request('get','/v1/login-check',null,{
-      authorization : authorizationToken,
-    })
-      .then(function(res){
-        global.loginState = res.data.data.result;
-        console.log('login check result : ',global.loginState);
-        if(callback){
-          callback();
-        }
-      })
-      .catch(function(err){
-        console.log(err);
-      })
+    //var request = function(method, url, param, success, fail){
+    request('get','/v1/login-check',null,
+    function(res){
+      console.log('login check res',res.data.result);
+      global.loginState = res.data.result;
+      if(callback){
+        callback(res);
+      }
+    });
   };
   
   var _setCookie = function(key, value, exp) {

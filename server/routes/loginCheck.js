@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 
 exports.isLoggedIn = (req) => {
   try {
+    console.log('@@@@@@@@exports.isLoggedIn test !!!!!!!!!!');
+    console.log(req.isAuthenticated());
     req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
     return req.isAuthenticated();
   } catch (error) {
