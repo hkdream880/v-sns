@@ -26,7 +26,7 @@ var Home = {
               </button>
               </div>
                 <div class="modal-body">
-                <form @submit.prevent="join">
+                <form @submit.prevent="doLogin">
                   <div class="form-group">
                     <label for="exampleInputEmail1">Email address</label>
                     <input v-model="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
@@ -55,7 +55,7 @@ var Home = {
     }
   },
   methods: {
-    join: function(e){
+    doLogin: function(e){
       //var request = function(method, url, param, success, fail){
       request('post','/v1/login',{ email: this.email, password: this.password },
         $.proxy(function(res){

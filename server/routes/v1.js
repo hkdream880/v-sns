@@ -7,6 +7,7 @@ const { isLoggedIn } = require('./loginCheck');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const fs = require('fs');
 const upload = multer({
   storage: multer.diskStorage({
     destination(req, file, cb){
@@ -20,6 +21,12 @@ const upload = multer({
   limits: {fieldSize : 5 * 1024 * 1024 }  //5mb 로 용량 제한
 });
 
+fs.readdir('uploads',(error)=>{
+  if(error){
+    console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
+    fs.mkdirSync('uploads');
+  }
+});
 
 router.get('/login-check',(req, res, next)=>{
   const result = isLoggedIn(req);
@@ -38,7 +45,7 @@ router.post('/join', async (req, res, next )=>{
   }
   try {
     if(isLoggedIn(req)){
-      return res.status(500).json({
+      return res.status(205).json({
         code: 500,
         data: {
           message: '이미 로그인 하였습니다.'

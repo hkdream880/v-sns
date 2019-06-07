@@ -9,11 +9,12 @@ var request = function(method, url, param, success, fail, option){
     .then($.proxy(function(res){
       if(success){
         success(res.data);
-      }      
+      }
     },this))
     .catch($.proxy(function(err){
+      
       if(fail){
-        fail(err);
+        fail(err.response.data);
       }else{
         console.error(err)
       }
