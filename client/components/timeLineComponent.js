@@ -1,7 +1,7 @@
 var TimeLine = { 
   template: `
     <div class="v-home">
-      <form>
+      <form @submit.prevent="uploadSns">
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-text">SNS</span>
@@ -11,10 +11,10 @@ var TimeLine = {
         <div class="input-group">
           <div class="custom-file">
             <input v-on:change="uploadFile" type="file" class="custom-file-input" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" >
-            <label class="custom-file-label" for="inputGroupFile04">Choose file</label>
+            <label class="custom-file-label" for="inputGroupFile04">{{imgFile?imgFile.name:'Choose file'}}</label>
           </div>
-          <div class="input-group-append" @click="testRequest">
-            <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">Upload</button>
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Upload</button>
           </div>
         </div>
       </form>
@@ -46,22 +46,36 @@ var TimeLine = {
     `,
     data: function(){
       return {
-        message: '',
-        imgFile: '',
+        message: null,
+        imgFile: null,
       }
     },
     methods: {
-      testRequest: function(){
-        console.log('test')
-        console.log(this.message);
-        request('get','/v1/write',{param1: 'param1',param2: 'param2'},
-          function(res){
+      uploadSns: function(e){
+        var header= {};
+        var formData = new FormData();
+        formData.append('content', this.message);
+        
+        if(this.imgFile){
+          header.enctype = 'multipart/form-data',
+          formData.append('image', this.imgFile);
+        }
+        axios.post('/v1/write',formData,{headers: header})
+          .then($.proxy(function(res){
             console.log(res);
-          })
+            this.imgFile = null;
+          },this))
+          .catch(function(err){
+            console.log(err)
+            this.imgFile = null;
+          });
+        
       },
       uploadFile: function(e){
-        console.log('uploadFile called');
-        console.log(e)
+        this.imgFile = $(e.currentTarget).prop("files")[0];
+        console.log(this.imgFile);
+        console.log(this.imgFile.name);
+        console.log(this.imgFile.size);
       }
     },
     computed: {

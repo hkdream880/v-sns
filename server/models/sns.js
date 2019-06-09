@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('sns',{
-    constent: {
+    content: {
       type: DataTypes.TEXT,
       allowNull: true,
     },

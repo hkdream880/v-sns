@@ -124,17 +124,33 @@ router.post('/login',(req,res,next)=>{
   })(req, res, next);
 });
 
-router.get('/write',(req, res, next)=>{
+router.post('/write',upload.single('image'),(req, res, next)=>{
+  console.log('/write called !!!!!!!!! ');
+  console.log(isLoggedIn(req));
+  if(!isLoggedIn(req)){
+    return res.status(500).json({
+      code: 500,
+      data: '로그인 해주세요'
+    })
+  }
+  let snsObj = {
+    content: req.body.content
+  }
+  if(req.file){
+    snsObj.image = req.file.filename;
+  }
   res.status(200).json({
     code: 200,
     data: 'success',
-    param: req.query
+    param: req.body,
+    user: req.user,
+    allParam: snsObj
   })
 })
 
-router.get('/image', upload.single('image'), (req, res, next)=>{
-  console.log(req.body, req.file);
-  res.json({url: `/img/${req.file.filename }`});
-});
+// router.post('/image', upload.single('image'), (req, res, next)=>{
+//   console.log(req.body, req.file);
+//   res.json({url: `/img/${req.file.filename }`});
+// });
 
 module.exports = router;

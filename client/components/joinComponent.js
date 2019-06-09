@@ -26,6 +26,7 @@ var Join = {
         {{errMsg}}
       </div>
     </form>
+    <button @click="test">test</button>
   </div>
   `,
   data: function(){
