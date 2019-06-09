@@ -64,8 +64,9 @@ var Home = {
             this.loginState = true;
             global.loginState = this.loginState ;
             commonUtil.getInstance().setSessionStorage('authorizationToken',res.token);
+            global.commonHeader.authorization = res.token;
             console.log('commonUtil.getInstance().getSessionStorage("authorizationToken"); test');
-            console.log(commonUtil.getInstance().getSessionStorage('authorizationToken'));
+            console.log(global.commonHeader);
             $('#login_close_btn').trigger('click');
           }
         },this),

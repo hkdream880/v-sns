@@ -7,15 +7,22 @@ console.log(config);
 const sequelize = new Sequelize(config.database, config.username, config.password, config);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-db.User = require('./user')(sequelize, Sequelize);
-db.Sns = require('./sns')(sequelize, Sequelize);
-db.Good = require('./good')(sequelize, Sequelize);
 
-db.User.hasMany(db.Sns);
+db.User = require('./user')(sequelize, Sequelize);
+db.Contents = require('./contents')(sequelize, Sequelize);
+db.Good = require('./good')(sequelize, Sequelize);
+db.HashTag = require('./hashTag')(sequelize, Sequelize);
+db.HashTagContents = require('./hashContents')(sequelize, Sequelize);
+
+db.User.hasMany(db.Contents);
 db.User.hasMany(db.Good);
-db.Sns.hasMany(db.Good);
-db.Sns.belongsTo(db.User);
+db.Contents.hasMany(db.Good);
+db.Contents.belongsTo(db.User);
 db.Good.belongsTo(db.User);
-db.Good.belongsTo(db.Sns);
+db.Good.belongsTo(db.Contents);
+db.HashTag.hasMany(db.HashTagContents);
+db.HashTagContents.belongsTo(db.HashTag);
+db.Contents.hasMany(db.HashTagContents);
+db.HashTagContents.belongsTo(db.Contents);
 
 module.exports = db;

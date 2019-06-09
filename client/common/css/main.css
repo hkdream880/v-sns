@@ -46,3 +46,7 @@
 .hide {
    display: none !important;
 }
+
+.v-text-input {
+   height: 100px;
+}

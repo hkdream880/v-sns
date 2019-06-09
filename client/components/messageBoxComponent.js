@@ -9,7 +9,7 @@ var MessageBox = {
     </div>
     <ul class="list-group">
       <li class="list-group-item">
-        <img src="./img/coffie.jpg" class="rounded v-profile" alt="...">
+        <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
         <span class="badge badge-dark">이현국</span>
         Cras justo odio
         <button type="button" class="btn btn-danger v-del-chat v-chat-btn" data-toggle="modal" data-target="#exampleModal">나가기</button>
@@ -18,7 +18,7 @@ var MessageBox = {
         </button>
       </li>
       <li class="list-group-item">
-        <img src="./img/coffie.jpg" class="rounded v-profile" alt="...">
+        <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
         <span class="badge badge-dark">이현국</span>
         Cras justo odio
         <button type="button" class="btn btn-danger v-del-chat v-chat-btn" data-toggle="modal" data-target="#exampleModal">나가기</button>

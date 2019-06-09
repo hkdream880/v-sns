@@ -6,7 +6,7 @@ var TimeLine = {
           <div class="input-group-prepend">
             <span class="input-group-text">SNS</span>
           </div>
-          <textarea v-model="message" class="form-control" aria-label="With textarea" ></textarea>
+          <textarea v-model="message" class="form-control v-text-input" aria-label="With textarea" ></textarea>
         </div>
         <div class="input-group">
           <div class="custom-file">
@@ -51,23 +51,27 @@ var TimeLine = {
       }
     },
     methods: {
-      uploadSns: function(e){
+      uploadSns: function(e){ //sns 업로드
         var header= {};
         var formData = new FormData();
         formData.append('content', this.message);
         
-        if(this.imgFile){
+        if(this.imgFile){ //이미지 있을 경우
           header.enctype = 'multipart/form-data',
           formData.append('image', this.imgFile);
         }
+
+        if(true){ //태그 있을 경우
+          formData.append('hashTag', ['tag1','tag2','tag3']);
+        }
+
         axios.post('/v1/write',formData,{headers: header})
           .then($.proxy(function(res){
             console.log(res);
             this.imgFile = null;
           },this))
           .catch(function(err){
-            console.log(err)
-            this.imgFile = null;
+            console.log(err);
           });
         
       },

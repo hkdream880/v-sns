@@ -17,7 +17,7 @@ var FriendsList = {
     <div class="v-friend-list">
       <ul class="list-group">
         <li class="list-group-item">
-          <img src="./img/coffie.jpg" class="rounded v-profile" alt="...">
+          <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
           Dapibus ac facilisis in
           <button type="button" class="btn btn-primary">메세지</button>
           <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">
@@ -25,7 +25,7 @@ var FriendsList = {
           </button>
         </li>
         <li class="list-group-item">
-          <img src="./img/coffie.jpg" class="rounded v-profile" alt="...">
+          <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
           Dapibus ac facilisis in
           <button type="button" class="btn btn-primary">메세지</button>
           <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">
@@ -33,7 +33,7 @@ var FriendsList = {
           </button>
         </li>
         <li class="list-group-item">
-          <img src="./img/coffie.jpg" class="rounded v-profile" alt="...">
+          <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
           Dapibus ac facilisis in
           <button type="button" class="btn btn-primary">메세지</button>
           <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">

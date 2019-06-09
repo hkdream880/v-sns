@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { User } = require('../models');
+const { User, Contents, HashTag, HashTagContents } = require('../models');
 const bcrypt = require('bcrypt');
 const { isLoggedIn } = require('./loginCheck');
 const passport = require('passport');
@@ -124,7 +124,12 @@ router.post('/login',(req,res,next)=>{
   })(req, res, next);
 });
 
-router.post('/write',upload.single('image'),(req, res, next)=>{
+router.post('/write',upload.single('image'),async (req, res, next)=>{
+  /*
+    tag 업을경우 contents 만 입력
+    tag 있을경우 tag, tagContents 입력
+  */
+ try {
   console.log('/write called !!!!!!!!! ');
   console.log(isLoggedIn(req));
   if(!isLoggedIn(req)){
@@ -134,23 +139,38 @@ router.post('/write',upload.single('image'),(req, res, next)=>{
     })
   }
   let snsObj = {
-    content: req.body.content
+    content: req.body.content,
+    userId: req.user.id
   }
   if(req.file){
     snsObj.image = req.file.filename;
   }
+  const content = await Contents.create(snsObj);
+
+  if(req.body.hashTag){ //tag 있을경우
+    const tagArr = req.body.hashTag.split(',')
+    //태그 찾아서 없을 경우 생성
+    const tagResult = await Promise.all(tagArr.map(tag=>HashTag.findOrCreate({
+      where : { name : tag.toLowerCase()}
+    })));
+    //태그와 컨텐츠 연결
+    await tagResult.forEach((data)=>{
+      HashTagContents.create({
+        hashTagId: data[0].dataValues.id,
+        contentId: content.id,
+      })
+      data[0].dataValues.id
+    })
+  }
   res.status(200).json({
     code: 200,
     data: 'success',
-    param: req.body,
-    user: req.user,
-    allParam: snsObj
-  })
+  }) 
+ } catch (error) {
+   console.error(error);
+   next(error);
+ }
 })
 
-// router.post('/image', upload.single('image'), (req, res, next)=>{
-//   console.log(req.body, req.file);
-//   res.json({url: `/img/${req.file.filename }`});
-// });
 
 module.exports = router;

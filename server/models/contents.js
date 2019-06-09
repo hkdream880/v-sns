@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('sns',{
+  return sequelize.define('contents',{
     content: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
     image: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
     good: {
       type: DataTypes.INTEGER,
