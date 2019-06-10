@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { User, Contents, HashTag, HashTagContents } = require('../models');
+const { User, Contents, HashTag, HashTagContents, Replies } = require('../models');
 const bcrypt = require('bcrypt');
 const { isLoggedIn } = require('./loginCheck');
 const passport = require('passport');
@@ -130,8 +130,6 @@ router.post('/write',upload.single('image'),async (req, res, next)=>{
     tag 있을경우 tag, tagContents 입력
   */
  try {
-  console.log('/write called !!!!!!!!! ');
-  console.log(isLoggedIn(req));
   if(!isLoggedIn(req)){
     return res.status(500).json({
       code: 500,
@@ -164,13 +162,61 @@ router.post('/write',upload.single('image'),async (req, res, next)=>{
   }
   res.status(200).json({
     code: 200,
-    data: 'success',
-  }) 
+    data: content,
+  });
  } catch (error) {
    console.error(error);
    next(error);
  }
 })
 
+router.get('/contents',async (req, res, next)=>{
+  try {
+    if(!isLoggedIn(req)||!req.user){
+      return res.status(500).json({
+        code: 500,
+        data: '로그인이 필요 합니다.'
+      })
+    }
+    const result = await Contents.findAll({
+      where: {userId: req.user.id},//TODO 파라미터 받아서 처리 할 것
+      include: [{ model: User,attributes:['email','id','profile']},{ model: Replies, include: {model: User,attributes:['email','id','profile']}}],
+      order:[['DATE','DESC']]
+    })
+    return res.status(200).json({
+      code: 200,
+      data: result,
+      reqUser: req.user.id
+    })
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: error
+    })
+  }
+})
+
+
+router.post('/reply',async (req, res, next)=>{
+  try {
+    console.log('/reply called !!!!!!!!!!',req.body);
+    const result = await Replies.create({
+      reply: req.body.reply,
+      contentId: req.body.contentId,
+      userId: req.user.id
+    });
+    return res.status(200).json({
+      code: 200,
+      data: result,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      code: 500,
+      data: error
+    })
+  }
+})
 
 module.exports = router;

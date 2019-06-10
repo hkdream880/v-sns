@@ -57,16 +57,12 @@ var Home = {
   methods: {
     doLogin: function(e){
       //var request = function(method, url, param, success, fail){
-      request('post','/v1/login',{ email: this.email, password: this.password },
+      request('post','/v1/login',{ email: this.email, password: this.password },null,
         $.proxy(function(res){
           if(res.code===201){
-            console.log('로그인 request success')
             this.loginState = true;
             global.loginState = this.loginState ;
             commonUtil.getInstance().setSessionStorage('authorizationToken',res.token);
-            global.commonHeader.authorization = res.token;
-            console.log('commonUtil.getInstance().getSessionStorage("authorizationToken"); test');
-            console.log(global.commonHeader);
             $('#login_close_btn').trigger('click');
           }
         },this),

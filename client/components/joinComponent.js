@@ -40,15 +40,12 @@ var Join = {
   }, 
   methods: {
     doJoin: function(e){
-      console.log('test');
-      console.log(this.email)
-      console.log(this.password);
-      //request('post','/v1/login',{ email: this.email, password: this.password },
+      //var request = function(method, url, param, header,success, fail, option){
       if(this.password!==this.chkPassword){
         this.showAlert('비밀번호를 확인 해 주세요');
         return
       }
-      request('post','/v1/join',{ email: this.email, password: this.password, phone: this.phone },
+      request('post','/v1/join',{ email: this.email, password: this.password, phone: this.phone },null,
       $.proxy(function(res){
         console.log('join success');
         console.log(res);

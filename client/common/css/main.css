@@ -50,3 +50,16 @@
 .v-text-input {
    height: 100px;
 }
+
+.v-content-list {
+   list-style: none;
+}
+
+.v-content {
+   text-align: left;
+   font-size: 250%;
+}
+
+.v-content-info {
+   text-align: right;
+}

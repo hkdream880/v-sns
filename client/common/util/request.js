@@ -6,30 +6,25 @@ var request = function(method, url, param, header,success, fail, option){
       params: param
     }
   }
-  if(header){
-    
-  }else{
 
-  }
   axios({
     url: url,
-    headers: headers,y
+    headers: global.getHeader(header),
     method: method,
     data: param
   })
-    .then($.proxy(function(res){
+    .then(function(res){
       if(success){
         success(res.data);
       }
-    },this))
-    .catch($.proxy(function(err){
-      
+    })
+    .catch(function(err){
       if(fail){
         fail(err.response.data);
       }else{
         console.error(err)
       }
-    },this));
+    });
 }
 
 

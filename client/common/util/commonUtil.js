@@ -2,8 +2,8 @@ var commonUtil = (function() {
   var _instance;
   var _isLogin = function(callback){
     console.log('_isLogin check called');
-    //var request = function(method, url, param, success, fail){
-    request('get','/v1/login-check',null,
+    //var request = function(method, url, param, header,success, fail, option){
+    request('get','/v1/login-check',null,null,
     function(res){
       console.log('login check res',res.data.result);
       global.loginState = res.data.result;
