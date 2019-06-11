@@ -1,28 +1,28 @@
 var request = function(method, url, param, header,success, fail, option){
   //global.axiosInstance.defaults.headers.common['authorization'] = commonUtil.getInstance().getSessionStorage('authorizationToken');
   var headers = null;
-  if(method==='get'){
-    param = {
-      params: param
-    }
-  }
-
   axios({
     url: url,
     headers: global.getHeader(header),
     method: method,
-    data: param
+    data: param,
+    params: param,
   })
     .then(function(res){
+      if(res.data.code===203){
+        return commonUtil.getInstance().showAlert(res.data.data,res.data.code);
+      }
       if(success){
         success(res.data);
       }
     })
     .catch(function(err){
+      //commonUtil.getInstance().showAlert(err.response.data.data,err.response.data.code);
       if(fail){
         fail(err.response.data);
       }else{
-        console.error(err)
+        commonUtil.getInstance().showAlert(err.response.data.data,err.response.data.code);
+        console.error(err);
       }
     });
 }

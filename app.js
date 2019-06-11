@@ -16,7 +16,6 @@ const RedisStore = require('connect-redis')(session);
 
 const app = express();
 sequelize.sync();
-passportConfig(passport);
 
 const sessionMiddleware = session({
   resave: false,
@@ -35,6 +34,7 @@ const sessionMiddleware = session({
   })
 })
 // view engine setup
+passportConfig(passport);
 app.set('views', path.join(__dirname, 'view'));
 app.set('view engine', 'ejs');
 app.engine('html',require('ejs').renderFile);

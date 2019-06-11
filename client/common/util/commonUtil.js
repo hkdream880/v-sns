@@ -1,6 +1,6 @@
 var commonUtil = (function() {
   var _instance;
-  var _isLogin = function(callback){
+  var _isLogin = function(callback,fail){
     console.log('_isLogin check called');
     //var request = function(method, url, param, header,success, fail, option){
     request('get','/v1/login-check',null,null,
@@ -9,6 +9,11 @@ var commonUtil = (function() {
       global.loginState = res.data.result;
       if(callback){
         callback(res);
+      }
+    },function(err){
+      if(fail){
+        global.loginState = false;
+        fail();
       }
     });
   };
@@ -38,7 +43,22 @@ var commonUtil = (function() {
   var _deleteSessionStorage = function(key){
     storage.removeItem(key);
   }
-
+  var _alertTimeout = null;
+  var _showAlert = function(msg,strongMsg){
+    clearTimeout(_alertTimeout);
+    _hideAlert();
+    var alertTemplate = `<div class="alert alert-warning alert-dismissible fade show v-common-alert" role="alert">
+      <strong>${strongMsg?strongMsg:'' }</strong>${msg}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>`
+    $('#alert_area').html(alertTemplate);
+    _alertTimeout = setTimeout(_hideAlert,3000);
+  }
+  var _hideAlert = function(){
+    $('.v-common-alert').alert('close');
+  }
 
   function initiate() {
     return {
@@ -49,6 +69,8 @@ var commonUtil = (function() {
       setSessionStorage: _setSessionStorage,
       getSessionStorage: _getSessionStorage,
       deleteSessionStorage: _deleteSessionStorage,
+      showAlert: _showAlert,
+      hideAlert: _hideAlert
     };
   }
 

@@ -25,12 +25,12 @@ var TimeLine = {
             <img v-if="content.image" v-bind:src="content.image" class="card-img-top" alt="...">
             <div class="card-body">
               <p class="card-text v-content">{{content.content}}</p>
-              <p class="card-text v-content-info">{{content.user.email}} / {{content.DATE}}</p>
+              <p class="card-text v-content-info">{{content.user.email}} / {{content.createdAt}}</p>
             </div>
             <ul class="list-group list-group-flush">
               <li v-for="reply in content.replies" class="list-group-item"
               v-bind:class="{'v-reply-mine': content.userId==reply.userId, 'v-reply-others': content.userId!=reply.userId}">
-                {{reply.reply}} / {{reply.user.email}} / {{reply.DATE}}
+                {{reply.reply}} / {{reply.user.email}} / {{reply.createdAt}}
                 <span class="badge badge-primary">New</span>
                 <span class="badge badge-secondary">×</span>
               </li>
@@ -122,19 +122,7 @@ var TimeLine = {
       }
     },
     computed: {
-      // replyClass: {
-      //   get: $.proxy(function(){
-      //     return {
-      //       'v-reply-others':this.cashValue.contentUser===this.cashValue.replyUser,
-      //       'v-reply-mine':this.cashValue.contentUser!==this.cashValue.replyUser,
-      //     }
-      //   },this),
-      //   set: $.proxy(function(cUser,rUser){
-      //     this.cashValue.contentUser = cUser;
-      //     this.cashValue.replyUser = rUser;
-      //   },this)
-      //   //'v-reply-others':'v-reply-mine'
-      // }
+      
     },
     beforeRouteEnter (to, from, next) {
       //to : 현재 컴포넌트 info Object

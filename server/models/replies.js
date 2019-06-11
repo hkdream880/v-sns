@@ -1,12 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('replies',{
+  return sequelize.define('reply',{
     reply: {
       type: DataTypes.TEXT,
       allowNull: true,
     }
   },{
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
+    timestamp: true,
     paranoid: true,
   })
 }

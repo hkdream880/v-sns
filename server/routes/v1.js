@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { User, Contents, HashTag, HashTagContents, Replies } = require('../models');
+const { User, Contents, HashTag, Replies } = require('../models');
+const queryOption = require('sequelize').Op;
 const bcrypt = require('bcrypt');
-const { isLoggedIn } = require('./loginCheck');
+const { isLoggedIn, isNotLoggedIn } = require('./loginCheck');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
@@ -28,30 +29,21 @@ fs.readdir('uploads',(error)=>{
   }
 });
 
-router.get('/login-check',(req, res, next)=>{
-  const result = isLoggedIn(req);
+router.get('/login-check',isLoggedIn,(req, res, next)=>{
   res.status(200).json({
     code: 200,
     data: {
-      result
+      info: req.user?req.user:null
     }
   })
 })
 
-router.post('/join', async (req, res, next )=>{
+router.post('/join',isNotLoggedIn, async (req, res, next )=>{
   let returnObj = {
     code: null,
     data: null,
   }
   try {
-    if(isLoggedIn(req)){
-      return res.status(205).json({
-        code: 500,
-        data: {
-          message: '이미 로그인 하였습니다.'
-        }
-      })
-    }
     const duplicateUser = await User.findAll({where: { email: req.body.email,deletedAt: null}})
     if(duplicateUser.length<=0){
       const hashPassword = await bcrypt.hash(req.body.password,10);
@@ -75,17 +67,10 @@ router.post('/join', async (req, res, next )=>{
   }
 });
 
-router.post('/login',(req,res,next)=>{
+router.post('/login',isNotLoggedIn,(req,res,next)=>{
   let returnObj = {
     code: null,
     data: null,
-  }
-  if(isLoggedIn(req)){
-    returnObj.code = 500;
-    returnObj.data = {
-      message: '이미 로그인 하였습니다.'
-    };
-    return res.status(returnObj.code).json(returnObj);
   }
   passport.authenticate('local',(authError, user, info)=>{
     if(authError){
@@ -102,14 +87,6 @@ router.post('/login',(req,res,next)=>{
         console.error(loginError);
         return next(loginError);
       }
-      console.log('login user test !!!');
-      console.log(user)
-      const returnUserInfo = {
-        email: user.email,
-        profile: user.profile,
-        phone: user.phone,
-        regDate: user.DATE,
-      }
       returnObj.code = 201;
       returnObj.data = 'login success';
       returnObj.token = jwt.sign({
@@ -118,24 +95,18 @@ router.post('/login',(req,res,next)=>{
         expiresIn: '1h',
         issuer: 'v-sns'
       });
-      returnObj.info = returnUserInfo;
+      returnObj.info = req.user;
       return res.status(returnObj.code).json(returnObj);
     });
   })(req, res, next);
 });
 
-router.post('/write',upload.single('image'),async (req, res, next)=>{
+router.post('/write',isLoggedIn,upload.single('image'),async (req, res, next)=>{
   /*
     tag 업을경우 contents 만 입력
     tag 있을경우 tag, tagContents 입력
   */
  try {
-  if(!isLoggedIn(req)){
-    return res.status(500).json({
-      code: 500,
-      data: '로그인 해주세요'
-    })
-  }
   let snsObj = {
     content: req.body.content,
     userId: req.user.id
@@ -151,13 +122,12 @@ router.post('/write',upload.single('image'),async (req, res, next)=>{
     const tagResult = await Promise.all(tagArr.map(tag=>HashTag.findOrCreate({
       where : { name : tag.toLowerCase()}
     })));
+    
     //태그와 컨텐츠 연결
+    //** 다대다 관계일 때 add + '대상 테이블 이름'() 호출 하면 중간 연결 테이블에 값 생성 된다.
+    //await content.addHashtags(tagResult.map(r => r[0]));
     await tagResult.forEach((data)=>{
-      HashTagContents.create({
-        hashTagId: data[0].dataValues.id,
-        contentId: content.id,
-      })
-      data[0].dataValues.id
+      console.log(content.addHashtags(data[0]));
     })
   }
   res.status(200).json({
@@ -170,18 +140,12 @@ router.post('/write',upload.single('image'),async (req, res, next)=>{
  }
 })
 
-router.get('/contents',async (req, res, next)=>{
+router.get('/contents',isLoggedIn,async (req, res, next)=>{
   try {
-    if(!isLoggedIn(req)||!req.user){
-      return res.status(500).json({
-        code: 500,
-        data: '로그인이 필요 합니다.'
-      })
-    }
     const result = await Contents.findAll({
       where: {userId: req.user.id},//TODO 파라미터 받아서 처리 할 것
       include: [{ model: User,attributes:['email','id','profile']},{ model: Replies, include: {model: User,attributes:['email','id','profile']}}],
-      order:[['DATE','DESC']]
+      order:[['createdAt','DESC']]
     })
     return res.status(200).json({
       code: 200,
@@ -196,9 +160,7 @@ router.get('/contents',async (req, res, next)=>{
     })
   }
 })
-
-
-router.post('/reply',async (req, res, next)=>{
+router.post('/reply',isLoggedIn,async (req, res, next)=>{
   try {
     console.log('/reply called !!!!!!!!!!',req.body);
     const result = await Replies.create({
@@ -217,6 +179,42 @@ router.post('/reply',async (req, res, next)=>{
       data: error
     })
   }
-})
+});
+
+router.get('/find-user',isLoggedIn, async (req, res, next)=>{
+  try {
+    const findList = await User.findAll(
+      { 
+        where: { email:{ [queryOption.like]: '%'+req.query.email+'%' } },
+        attributes: ['id','email']
+      }
+    )
+    return res.status(200).json({
+      code:200,
+      data: {
+        param: req.query,
+        list: findList
+      },
+    })
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: 'somthing wrong'
+    })
+  }
+});
+
+router.post('/add-follow',isLoggedIn,async (req, res, next)=>{
+  try {
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: 'somthing wrong'
+    })
+  }
+});
 
 module.exports = router;

@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('contents',{
+  return sequelize.define('content',{
     content: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -14,8 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
     }
   },{
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
+    timestamp: true,    
     paranoid: true,
   })
 }

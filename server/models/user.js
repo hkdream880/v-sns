@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('users',{
+  return sequelize.define('user',{
     email: {
       type: DataTypes.STRING(20),
       unique: true,
@@ -18,8 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     }
   },{
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
+    timestamp: true,
     paranoid: true,
   });
 }
