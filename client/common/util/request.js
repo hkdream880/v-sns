@@ -1,13 +1,18 @@
 var request = function(method, url, param, header,success, fail, option){
   //global.axiosInstance.defaults.headers.common['authorization'] = commonUtil.getInstance().getSessionStorage('authorizationToken');
   var headers = null;
-  axios({
+  var axiocConfig = {
     url: url,
     headers: global.getHeader(header),
-    method: method,
-    data: param,
-    params: param,
-  })
+    method: method
+  };
+  if(method==='get'){
+    axiocConfig.params = param;
+  }else{
+    axiocConfig.data = param;
+  }
+  console.log(axiocConfig);
+  axios(axiocConfig)
     .then(function(res){
       if(res.data.code===203){
         return commonUtil.getInstance().showAlert(res.data.data,res.data.code);

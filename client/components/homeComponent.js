@@ -62,6 +62,7 @@ var Home = {
           if(res.code===201){
             this.loginState = true;
             global.loginState = this.loginState ;
+            global.userInfo = res.info;
             commonUtil.getInstance().setSessionStorage('authorizationToken',res.token);
             $('#login_close_btn').trigger('click');
           }

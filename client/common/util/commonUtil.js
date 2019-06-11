@@ -5,8 +5,9 @@ var commonUtil = (function() {
     //var request = function(method, url, param, header,success, fail, option){
     request('get','/v1/login-check',null,null,
     function(res){
-      console.log('login check res',res.data.result);
-      global.loginState = res.data.result;
+      console.log('login check res',res);
+      global.loginState = res.data.info!==null;
+      global.userInfo = res.data.info;
       if(callback){
         callback(res);
       }

@@ -33,16 +33,20 @@ router.get('/login-check',isLoggedIn,(req, res, next)=>{
   res.status(200).json({
     code: 200,
     data: {
-      info: req.user?req.user:null
+      info: {
+        email: req.user.email,
+        phone: req.user.phone,
+        profile: req.user.profile,
+      }
     }
-  })
-})
+  });
+});
 
 router.post('/join',isNotLoggedIn, async (req, res, next )=>{
   let returnObj = {
     code: null,
     data: null,
-  }
+  };
   try {
     const duplicateUser = await User.findAll({where: { email: req.body.email,deletedAt: null}})
     if(duplicateUser.length<=0){
@@ -51,7 +55,7 @@ router.post('/join',isNotLoggedIn, async (req, res, next )=>{
         email: req.body.email,
         password: hashPassword,
         phone: req.body.phone,
-      })
+      });
       returnObj.code = 201;
       returnObj.data = {
         message: 'success',
@@ -71,7 +75,7 @@ router.post('/login',isNotLoggedIn,(req,res,next)=>{
   let returnObj = {
     code: null,
     data: null,
-  }
+  };
   passport.authenticate('local',(authError, user, info)=>{
     if(authError){
       console.error(authError);
@@ -95,7 +99,11 @@ router.post('/login',isNotLoggedIn,(req,res,next)=>{
         expiresIn: '1h',
         issuer: 'v-sns'
       });
-      returnObj.info = req.user;
+      returnObj.info = {
+        email: req.user.email,
+        phone: req.user.phone,
+        profile: req.user.profile,
+      };
       return res.status(returnObj.code).json(returnObj);
     });
   })(req, res, next);
@@ -110,7 +118,7 @@ router.post('/write',isLoggedIn,upload.single('image'),async (req, res, next)=>{
   let snsObj = {
     content: req.body.content,
     userId: req.user.id
-  }
+  };
   if(req.file){
     snsObj.image = req.file.filename;
   }
@@ -127,7 +135,7 @@ router.post('/write',isLoggedIn,upload.single('image'),async (req, res, next)=>{
     //** 다대다 관계일 때 add + '대상 테이블 이름'() 호출 하면 중간 연결 테이블에 값 생성 된다.
     //await content.addHashtags(tagResult.map(r => r[0]));
     await tagResult.forEach((data)=>{
-      console.log(content.addHashtags(data[0]));
+      content.addHashtags(data[0]);
     })
   }
   res.status(200).json({
@@ -142,24 +150,44 @@ router.post('/write',isLoggedIn,upload.single('image'),async (req, res, next)=>{
 
 router.get('/contents',isLoggedIn,async (req, res, next)=>{
   try {
-    const result = await Contents.findAll({
-      where: {userId: req.user.id},//TODO 파라미터 받아서 처리 할 것
-      include: [{ model: User,attributes:['email','id','profile']},{ model: Replies, include: {model: User,attributes:['email','id','profile']}}],
-      order:[['createdAt','DESC']]
+    const userFollowInfo = await User.findOne({
+      include: [{
+        model: User,
+        as: 'Followings',
+        attributes:['id']
+      }],
+      attributes:['id'],
+      where: {id: req.user.id}
+    });
+
+    let idList = [];
+    userFollowInfo.Followings.forEach((data)=>{
+      idList.push(data.id);
     })
+    idList.push(req.user.id);
+    
+    const result = await Contents.findAll({
+      where: {userId: {[queryOption.in]: idList}},
+      include: [
+        { model: User,attributes:['email','id','profile']},
+        { model: Replies, include: {model: User,attributes:['email','id','profile']}},
+      ],
+      order:[['createdAt','DESC']],
+      reqUserId: req.user.id
+    });
     return res.status(200).json({
       code: 200,
       data: result,
-      reqUser: req.user.id
-    })
+      reqUser: req.user.id,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       code: 500,
       data: error
-    })
+    });
   }
-})
+});
 router.post('/reply',isLoggedIn,async (req, res, next)=>{
   try {
     console.log('/reply called !!!!!!!!!!',req.body);
@@ -171,13 +199,13 @@ router.post('/reply',isLoggedIn,async (req, res, next)=>{
     return res.status(200).json({
       code: 200,
       data: result,
-    })
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       code: 500,
       data: error
-    })
+    });
   }
 });
 
@@ -185,10 +213,10 @@ router.get('/find-user',isLoggedIn, async (req, res, next)=>{
   try {
     const findList = await User.findAll(
       { 
-        where: { email:{ [queryOption.like]: '%'+req.query.email+'%' } },
+        where: { email:{ [queryOption.like]: '%'+req.query.email+'%' }, id:{[queryOption.ne]: req.user.id } },
         attributes: ['id','email']
       }
-    )
+    );
     return res.status(200).json({
       code:200,
       data: {
@@ -200,21 +228,54 @@ router.get('/find-user',isLoggedIn, async (req, res, next)=>{
     console.error(error);
     return res.status(500).json({
       code: 500,
-      data: 'somthing wrong'
+      data: 'something wrong'
     })
   }
 });
 
 router.post('/add-follow',isLoggedIn,async (req, res, next)=>{
   try {
-    
+   const user = await User.findOne({where : {id:req.user.id}});
+   const result = await user.addFollowing(req.body.addId);
+    return res.status(200).json({
+      code: 200,
+      data: 'test',
+      param: req.body,
+      result: result
+    })
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       code: 500,
-      data: 'somthing wrong'
+      data: 'something wrong',
+      result: result
     })
   }
 });
+
+router.get('/follow',isLoggedIn, async (req, res, next)=>{
+  try {
+    const userFollowInfo = await User.findOne({
+      include: [{
+        model: User,
+        as: 'Followings',
+        attributes:['id','email','profile']
+      }],
+      attributes:['id'],
+      where: {id: req.user.id}
+    }); 
+    return res.status(200).json({
+      code: 200,
+      data: userFollowInfo.Followings,
+    })
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: 'something wrong',
+      result: result
+    })
+  }
+})
 
 module.exports = router;

@@ -30,7 +30,7 @@ var FriendsList = {
           <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
           {{item.email}}
           <!-- 친구 찾기 -->
-          <button v-if="resultType==='email'" type="button" class="btn btn-primary">Follow</button>
+          <button v-if="resultType==='email'" type="button" class="btn btn-primary" @click="addFollowList(item.id)">Follow</button>
           <!-- 친구 목록 -->
           <button v-if="resultType==='list'" type="button" class="btn btn-primary">Send DM</button>
           <button v-if="resultType==='list'" type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">Delete</button>
@@ -78,28 +78,48 @@ var FriendsList = {
     },
     getFollowList: function(){
       console.log('getFollowList called');
+      //request('post','/v1/add-follow',{addId: id},null,
+      request('get','/v1/follow',null,null,
+      $.proxy(function(res){
+        console.log(res);
+        this.showList = res.data;
+        console.log(this.showList);
+      },this),
+      $.proxy(function(err){
+        console.log(err);
+        commonUtil.getInstance().showAlert(err.data,err.code);
+      },this));
     },
     findEmail: function(){
       if(!this.findValue){
         commonUtil.getInstance().showAlert('검색어를 입력 해 주세요');
-        return
+        return;
       }
       request('get','/v1/find-user',{email: this.findValue},{},
       $.proxy(function(res){
         console.log(res);
         if(!res.data.list||res.data.list.length<=0){
           commonUtil.getInstance().showAlert('결과가 없습니다.');
-          return
+          return;
         }
         this.resultType = this.filterValue;
         this.showList = res.data.list;
       },this),
       $.proxy(function(err){
         console.log(err);
-      },this))
+        commonUtil.getInstance().showAlert(err.data,err.code);
+      },this));
     },
-    addFollowList: function(){
-      console.log('addFollowList called');
+    addFollowList: function(id){
+      console.log('addFollowList called id : ',id);
+      request('post','/v1/add-follow',{addId: id},null,
+      $.proxy(function(res){
+        console.log(res);
+      },this),
+      $.proxy(function(err){
+        console.log(err);
+        commonUtil.getInstance().showAlert(err.data,err.code);
+      },this));
     },
     deleteFollowList: function(){
       console.log('deleteFollowList called');
@@ -115,7 +135,7 @@ var FriendsList = {
   },
   beforeRouteEnter (to, from, next) {
     next(function(vm){
-      
+      vm.getFollowList();
     });
   },
   beforeRouteLeave (to, from, next) {

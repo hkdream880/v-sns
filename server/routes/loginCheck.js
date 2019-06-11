@@ -6,8 +6,9 @@ exports.isLoggedIn = (req, res, next) => {
     console.log('exports.isLoggedIn test')
     console.log(req.headers.authorization);
     req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
+    console.log(req.decoded);
     //jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
-    if(req.isAuthenticated()){
+    if(req.isAuthenticated()&&req.decoded.email===req.user.email){
       next();
     } else {
       res.status(500).json({
@@ -27,10 +28,10 @@ exports.isLoggedIn = (req, res, next) => {
 
 exports.isNotLoggedIn = (req, res, next) => {
   try {
-    if(!req.isAuthenticated()){
+    req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
+    if(!req.isAuthenticated()||req.decoded.email===req.user.email){
       return next();
     }
-    jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
     res.status(500).json({
       code: 500,
       data: '로그아웃 해 주세요.'

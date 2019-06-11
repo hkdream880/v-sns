@@ -41,10 +41,10 @@ var TimeLine = {
                 <button class="btn btn-outline-secondary" @click="sendReply(content.id)" type="button">Reply</button>
               </div>
             </div>
-            <div class="card-body">
+            <!--<div class="card-body">
               <a href="#" class="card-link">Card link</a>
               <a href="#" class="card-link">Another link</a>
-            </div>
+            </div> -->
           </div>
         </li>
       </ul>      
