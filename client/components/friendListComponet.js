@@ -32,7 +32,7 @@ var FriendsList = {
           <!-- 친구 찾기 -->
           <button v-if="resultType==='email'" type="button" class="btn btn-primary" @click="addFollowList(item.id)">Follow</button>
           <!-- 친구 목록 -->
-          <button v-if="resultType==='list'" type="button" class="btn btn-primary">Send DM</button>
+          <button v-if="resultType==='list'" type="button" class="btn btn-primary" @click="moveChat(item.id)">Chat</button>
           <button v-if="resultType==='list'" type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">Delete</button>
         </li>
       </ul>
@@ -77,8 +77,6 @@ var FriendsList = {
       }
     },
     getFollowList: function(){
-      console.log('getFollowList called');
-      //request('post','/v1/add-follow',{addId: id},null,
       request('get','/v1/follow',null,null,
       $.proxy(function(res){
         console.log(res);
@@ -111,7 +109,6 @@ var FriendsList = {
       },this));
     },
     addFollowList: function(id){
-      console.log('addFollowList called id : ',id);
       request('post','/v1/add-follow',{addId: id},null,
       $.proxy(function(res){
         console.log(res);
@@ -123,6 +120,23 @@ var FriendsList = {
     },
     deleteFollowList: function(){
       console.log('deleteFollowList called');
+    },
+    moveChat: function(targetId){
+      console.log('moveChat targetId: ',targetId);
+      /*
+      방 체크 및 생성 api 제작
+      리턴 받은 후 화면 전환
+      */
+      request('post','/v1/check-room',{targetId: targetId},null,
+        $.proxy(function(res){
+          console.log('moveChat res');
+          console.log(res);
+          router.push('/chat/'+res.data);
+        },this),
+        $.proxy(function(err){
+          console.log(err);
+          commonUtil.getInstance().showAlert(err.data,err.code);
+        },this));
     }
   },
   computed: {

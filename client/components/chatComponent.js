@@ -1,7 +1,7 @@
 var Chat = {
   template: `
     <div class="container">
-    <h3 class=" text-center">Messaging</h3>
+    <h3 class=" text-center">{{roomId}}</h3>
     <div class="messaging">
           <div class="inbox_msg">
             <div class="inbox_people">
@@ -90,6 +90,7 @@ var Chat = {
         <p class="text-center top_spac"> Design by <a target="_blank" href="#">Sunil Rajput</a></p>
       </div>
     </div>`,
+  props: ['roomId'],
   data: function(){
     return {
       socket: null,
@@ -97,21 +98,26 @@ var Chat = {
   },
   methods: {
     init: function(vm){
-      console.log('socket init');
-      this.socket = io.connect('http://localhost:3000/chat', {
-        path: '/v-chat',
-        query: 'roomName=testRoom'
-      });
-      console.log(this.socket);
-      this.socket.on('join',function(data){
-        console.log('socket join event called ',data);
-      });
-      this.socket.on('exit',function(){
-        console.log('socket exit event called');
-      });
-      this.socket.on('chat',function(data){
-        console.log('socket chat event called data : ',data);
-      });
+      // console.log('socket init');
+      // this.socket = io.connect('http://localhost:3000/chat', {
+      //   path: '/v-chat',
+      //   query: `roomId=${this.roomId}`
+      // });
+      // console.log(this.socket);
+      // this.socket.on('join',function(data){
+      //   console.log('socket join event called ',data);
+      // });
+      // this.socket.on('exit',function(){
+      //   console.log('socket exit event called');
+      // });
+      // this.socket.on('chat',function(data){
+      //   console.log('socket chat event called data : ',data);
+      // });
+      /*
+      TODO
+        - 방 목록과 해당 방 목록의 마지막 채팅 내용 받기
+        - 방 번호 있으면 해당 채팅 활성화
+      */
     },
     getChat: function(res){
       console.log('getChat called res: ',res);
@@ -124,7 +130,7 @@ var Chat = {
       },this),
       $.proxy(function(err){
         console.log(err);
-      },this))
+      },this));
     },
     getChatRoomList: function(){
       console.log('getChatRoomList called');

@@ -36,10 +36,13 @@ var router = new VueRouter({
       }
     },
     {
-      path: '/chat', 
+      path: '/chat/:roomId', 
       components: {
         default: Chat,
         header: Header
+      },
+      props: {
+        default: true,
       }
     },
   ]

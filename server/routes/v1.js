@@ -67,7 +67,10 @@ router.post('/join',isNotLoggedIn, async (req, res, next )=>{
     return res.status(returnObj.code).json(returnObj);
   } catch (error) {
     console.error(error);
-    next(error);
+    return res.status(500).json({
+      code: 500,
+      data: error
+    });
   }
 });
 
@@ -234,68 +237,14 @@ router.get('/find-user',isLoggedIn, async (req, res, next)=>{
 });
 
 router.post('/add-follow',isLoggedIn,async (req, res, next)=>{
-  /*
-  - 친구추가 요청
-  - 친구 목록에 추가
-  - 채팅방 생성
-  - 채팅방 진입
-  - 채팅방 초대
-   */
   try {
     const user = await User.findOne({where : {id:req.user.id}});
     const targetUser = await User.findOne({where : {id:req.body.addId}});
-    //룸 - 유저 연결 테이블을 기반으로 방 조회
-    //없을경우 생성
-
-    //두 유저의 방 조회
-    const test = await Room.findAll({
-      // include: [{
-      //     model: User,
-      //     through: 'roomUser',
-      //     //where: {[queryOption.or]: [{ id: user.id },{ id: targetUser.id }]}
-      //     where: { [queryOption.or]: [{id: user.id},{id: targetUser.id}] }
-      //   }], 
-      group: ['roomId'],
-      where: {include: [{
-        model: User,
-        through: 'roomUser',
-        //where: {[queryOption.or]: [{ id: user.id },{ id: targetUser.id }]}
-        where: { [queryOption.or]: [{id: user.id},{id: targetUser.id}] }
-      }]}
-    })
+    await user.addFollowing(targetUser);
     
-
-    //방의 갯수가 1개가 아닐 때 즉 서로 연결된 방이 없을 때 방 생성
-    //let newRoomFlag = false;
-    //console.log(test.length);
-    //if(test.length!==1){
-      //newRoomFlag = true;
-      // const RoomResult = await Room.create(user);
-      // await user.addRoom(RoomResult);
-      // await targetUser.addRoom(RoomResult);
-      //새로운 방이 생성되면, targetUser 채팅방 초대
-      //socket.join(roomId);
-      //console.log(RoomResult.id);
-      //req.app.get('io').join(RoomResult.id);
-      //console.log('새로운 방 생성1');
-    //}else if(test[0].dataValues.users.length<=1){
-      //console.log(test[0].id);
-      
-      //console.log('새로운 방 생성2');
-    // }else{
-    //   console.log('방 진입');
-    // }
-    //마지막으로 친구목록에 추가
-
-     //const test = await user.addFollowing(targetUser);
-    // const RoomResult = await Room.create(user);
-    // await user.addRoom(RoomResult);
-    // await targetUser.addRoom(RoomResult);
-
     return res.status(200).json({
       code: 200,
-      data: test,
-      param: req.body
+      data: 'success'
     })
   } catch (error) {
     console.error(error);
@@ -341,5 +290,67 @@ router.post('/chat',(req, res, next )=>{
     data: req.body
   })
 });
+
+router.post('/check-room',isLoggedIn,async (req, res, next)=>{
+  try {
+    //해당 유저들이 속해있는 방 리스트 받기
+    const usersAllRoomList = await Room.findAll({
+    include: [{
+        model: User,
+        attributes: ['id','email','profile'],
+        through: 'roomUser',
+        where: { [queryOption.or]: [{id: req.user.id},{id: req.body.targetId}] }
+      }],
+    })
+
+    let newRoomFlag = true;
+    let compareArr = [];
+    let targetRoomId = null;
+
+    //방 리스트 받아서 해당 유저들이 속한 방 찾기
+    for(let i=0;i<usersAllRoomList.length;i++){
+      if(usersAllRoomList[i].users.length<=1){
+        continue;
+      }
+      console.log('roomid : ',usersAllRoomList[i].id);
+      for(let j=0;j<usersAllRoomList[i].users.length;j++){
+        console.log('userId : ',usersAllRoomList[i].users[j].id);
+        compareArr.push(usersAllRoomList[i].users[j].id);
+      }
+      //두 유저가 속해있는 방 찾을 경우
+      console.log(compareArr);
+      console.log(compareArr.includes(req.user.id));
+      console.log(compareArr.includes(req.body.targetId));
+      if(compareArr.includes(req.user.id)&&compareArr.includes(req.body.targetId)){
+        targetRoomId = usersAllRoomList[i].id
+        newRoomFlag = false;
+        break;
+      }
+      compareArr = [];
+    }
+    //두 유저가 속해있는 방 찾지 못할 경우 새로운 방 생성
+    console.log('newRoomFlag : ',newRoomFlag);
+    if(newRoomFlag){
+      //채팅 user 정보 받기
+      const user = await User.findOne({where : {id:req.user.id}});
+      const targetUser = await User.findOne({where : {id:req.body.targetId}});
+      const RoomResult = await Room.create(user);
+      await user.addRoom(RoomResult);
+      await targetUser.addRoom(RoomResult);
+      targetRoomId = RoomResult.id;
+      //TODO: 상대유저 초대
+    }
+    return res.status(200).json({
+      code: 200,
+      data: targetRoomId  //방번호 리턴
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: error
+    });
+  }
+})
 
 module.exports = router;
