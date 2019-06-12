@@ -5,7 +5,7 @@ var build = function (){
   var _url = './';
 
   var _importArr = [];
-
+  _importArr.push(`<script src='./v-chat/socket.io.js'></script>`);
   _importArr.push(`<script src="./common/lib/vue.js"></script>`);
   _importArr.push(`<script src="./common/lib/vue-router.js"></script>`);
   _importArr.push(`<script src="./common/lib/axios.js"></script>`);
@@ -25,6 +25,7 @@ var build = function (){
   _importArr.push(`<script src="./components/joinComponent.js"></script>`);
   _importArr.push(`<script src="./components/friendListComponet.js"></script>`);
   _importArr.push(`<script src="./components/messageBoxComponent.js"></script>`);
+  _importArr.push(`<script src="./components/chatComponent.js"></script>`);
   _importArr.push(`<script src="./routes/mainRouter.js"></script>`);
   _importArr.push(`<script src="./init.js"></script>`);
 

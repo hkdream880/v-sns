@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { User, Contents, HashTag, Replies } = require('../models');
+const { User, Contents, HashTag, Replies, Room, Chat, } = require('../models');
 const queryOption = require('sequelize').Op;
 const bcrypt = require('bcrypt');
 const { isLoggedIn, isNotLoggedIn } = require('./loginCheck');
@@ -234,14 +234,68 @@ router.get('/find-user',isLoggedIn, async (req, res, next)=>{
 });
 
 router.post('/add-follow',isLoggedIn,async (req, res, next)=>{
+  /*
+  - 친구추가 요청
+  - 친구 목록에 추가
+  - 채팅방 생성
+  - 채팅방 진입
+  - 채팅방 초대
+   */
   try {
-   const user = await User.findOne({where : {id:req.user.id}});
-   const result = await user.addFollowing(req.body.addId);
+    const user = await User.findOne({where : {id:req.user.id}});
+    const targetUser = await User.findOne({where : {id:req.body.addId}});
+    //룸 - 유저 연결 테이블을 기반으로 방 조회
+    //없을경우 생성
+
+    //두 유저의 방 조회
+    const test = await Room.findAll({
+      // include: [{
+      //     model: User,
+      //     through: 'roomUser',
+      //     //where: {[queryOption.or]: [{ id: user.id },{ id: targetUser.id }]}
+      //     where: { [queryOption.or]: [{id: user.id},{id: targetUser.id}] }
+      //   }], 
+      group: ['roomId'],
+      where: {include: [{
+        model: User,
+        through: 'roomUser',
+        //where: {[queryOption.or]: [{ id: user.id },{ id: targetUser.id }]}
+        where: { [queryOption.or]: [{id: user.id},{id: targetUser.id}] }
+      }]}
+    })
+    
+
+    //방의 갯수가 1개가 아닐 때 즉 서로 연결된 방이 없을 때 방 생성
+    //let newRoomFlag = false;
+    //console.log(test.length);
+    //if(test.length!==1){
+      //newRoomFlag = true;
+      // const RoomResult = await Room.create(user);
+      // await user.addRoom(RoomResult);
+      // await targetUser.addRoom(RoomResult);
+      //새로운 방이 생성되면, targetUser 채팅방 초대
+      //socket.join(roomId);
+      //console.log(RoomResult.id);
+      //req.app.get('io').join(RoomResult.id);
+      //console.log('새로운 방 생성1');
+    //}else if(test[0].dataValues.users.length<=1){
+      //console.log(test[0].id);
+      
+      //console.log('새로운 방 생성2');
+    // }else{
+    //   console.log('방 진입');
+    // }
+    //마지막으로 친구목록에 추가
+
+     //const test = await user.addFollowing(targetUser);
+    // const RoomResult = await Room.create(user);
+    // await user.addRoom(RoomResult);
+    // await targetUser.addRoom(RoomResult);
+
     return res.status(200).json({
       code: 200,
-      data: 'test',
-      param: req.body,
-      result: result
+      data: test,
+      param: req.body
     })
   } catch (error) {
     console.error(error);
@@ -277,5 +331,15 @@ router.get('/follow',isLoggedIn, async (req, res, next)=>{
     })
   }
 })
+
+router.post('/chat',(req, res, next )=>{
+  req.app.get('io').of('/chat').to(req.body.roomId).emit('chat',{
+    chat: 'test 입니다.'
+  });
+  return res.status(200).json({
+    code: 200,
+    data: req.body
+  })
+});
 
 module.exports = router;

@@ -7,7 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('v-sns:server');
 var http = require('http');
-
+var webSocket = require('../server/common/socket');
+var sessionMiddleware = require('../server/common/sessionMiddleware');
 /**
  * Get port from environment and store in Express.
  */
@@ -76,6 +77,8 @@ function onError(error) {
       throw error;
   }
 }
+
+webSocket(server,app, sessionMiddleware);
 
 /**
  * Event listener for HTTP server "listening" event.

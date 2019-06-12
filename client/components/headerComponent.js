@@ -16,6 +16,9 @@ var Header = {
       <li class="nav-item">
         <router-link to="/friends" class="nav-link">Friends List</router-link>
       </li>
+      <li class="nav-item">
+        <router-link to="/chat" class="nav-link">chat test</router-link>
+      </li>
     </ul>
   </div>
 </nav>

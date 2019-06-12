@@ -35,6 +35,13 @@ var router = new VueRouter({
         header: Header
       }
     },
+    {
+      path: '/chat', 
+      components: {
+        default: Chat,
+        header: Header
+      }
+    },
   ]
 });
 

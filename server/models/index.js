@@ -12,6 +12,8 @@ db.User = require('./user')(sequelize, Sequelize);
 db.Contents = require('./contents')(sequelize, Sequelize);
 db.HashTag = require('./hashTag')(sequelize, Sequelize);
 db.Replies = require('./replies')(sequelize, Sequelize);
+db.Chat = require('./chat')(sequelize, Sequelize);
+db.Room = require('./room')(sequelize, Sequelize);
 
 db.User.hasMany(db.Contents,{foreignKey:'userId', sourceKey:'id'});
 db.Contents.belongsTo(db.User,{foreignKey:'userId', targetKey:'id'});
@@ -30,5 +32,14 @@ db.User.belongsToMany(db.User,{through: 'follows', foreignKey: 'followingId', as
 
 db.Contents.belongsToMany(db.HashTag,{through: 'hashContents'});
 db.HashTag.belongsToMany(db.Contents,{through: 'hashContents'});
+
+db.User.belongsToMany(db.Room,{through: 'roomUser'});
+db.Room.belongsToMany(db.User,{through: 'roomUser'});
+
+db.User.hasMany(db.Chat,{foreignKey:'userId', sourceKey:'id'});
+db.Chat.belongsTo(db.User,{foreignKey:'userId', targetKey:'id'});
+
+db.Room.hasMany(db.Chat,{foreignKey:'roomId', sourceKey:'id'});
+db.Chat.belongsTo(db.Room,{foreignKey:'roomId', targetKey:'id'});
 
 module.exports = db;
