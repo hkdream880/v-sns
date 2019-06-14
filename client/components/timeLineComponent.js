@@ -50,6 +50,7 @@ var TimeLine = {
       </ul>      
     </div>
     `,
+    mixins: [mixins],
     data: function(){
       return {
         message: null,
@@ -61,19 +62,20 @@ var TimeLine = {
     },
     methods: {
       getContents : function(){
-        ///contents
-        global.request('get','/v1/contents',null,null,
-          $.proxy(function(res){
-            this.userId = res.reqUser;
-            this.contents = res.data;
-          },this),
-          $.proxy(function(err){
-            console.log(err)
-          },this)
-        );
+        this.$http({
+          url: '/v1/contents',
+          headers: this.getHeader(),
+          method: 'get'
+        }).
+        then($.proxy(function(res){
+          this.userId = res.data.reqUser;
+          this.contents = res.data.data;
+        },this)).
+        catch($.proxy(function(err){
+          console.log(err.response)
+        },this));
       },
       uploadSns: function(e){ //sns 업로드
-        var header= {};
         var formData = new FormData();
         formData.append('content', this.message);
         
@@ -85,50 +87,57 @@ var TimeLine = {
           formData.append('hashTag', ['tag1','tag2','tag3']);
         }
 
-        //var request = function(method, url, param, header,success, fail, option){
-        global.request('post','/v1/write',formData,header,
-        $.proxy(function(res){
+        this.$http({
+          url: '/v1/write',
+          headers: this.getHeader(),
+          method: 'post',
+          data: formData
+        }).
+        then($.proxy(function(res){
           this.message = null; 
           this.imgFile = null;
-          if(res.code===200){
-            //this.contents.unshift(res.data);
+          if(res.data.code===200){
             this.getContents();
           }
-        },this),
-        function(err){
-          console.log(err);
+        },this)).
+        catch(function(err){
+          console.log(err.response);
         });
       },
       uploadFile: function(e){
         this.imgFile = $(e.currentTarget).prop("files")[0];
       },
       sendReply: function(contentId){
-        var $inputObj = this.$el.querySelector('#reply_'+contentId)
+        var $inputObj = this.$el.querySelector('#reply_'+contentId);
         requestObj = {
           reply: $inputObj.value,
           contentId: contentId,
         }
-        global.request('post','/v1/reply',requestObj,null,
-        $.proxy(function(res){
-          if(res.code===200){
+        this.$http({
+          url: '/v1/reply',
+          headers: this.getHeader(),
+          method: 'post',
+          data: requestObj
+        }).then($.proxy(function(res){
+          if(res.data.code===200){
             $inputObj.value = '';
             this.getContents();
           }
-        },this),
-        $.proxy(function(err){
-          console.log(err);
+        },this)).catch($.proxy(function(err){
+          console.log(err.response);
         },this));
       }
     },
     computed: {
       
     },
+    mounted: function(){
+      this.getContents();
+    },
     beforeRouteEnter (to, from, next) {
       //to : 현재 컴포넌트 info Object
       //from : 이전 컴포넌트 info Object
-      next(function(vm){
-        vm.getContents();
-      });
+      next();
     },
     beforeRouteLeave (to, from, next) {
       next();

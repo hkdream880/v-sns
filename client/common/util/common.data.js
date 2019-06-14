@@ -1,18 +1,8 @@
-var global = {
-  data: function(){
-    return {
-      mixinVal: 'mixinVal',
-    }
-  },
-  created: function(){
-    //this.mixinTest('mixin test');
-  },
-  methods: {
-    mixinTest: function(str){
-      alert(str);
-    }
-  }
-}
+common.data = {
+  loginState: false,
+  chatRoomList: [],
+};
+
 // var global = {
 //   data: function(){
 //     return {

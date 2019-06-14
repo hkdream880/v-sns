@@ -15,21 +15,28 @@ var build = function (){
   _importArr.push(`<script src="./common/lib/bootstrap.min.js"></script>`);
   _importArr.push(`<script src="./common/lib/nprogress.js"></script>`);
 
-  _importArr.push(`<script src="./common/util/global.js"></script>`);
-  _importArr.push(`<script src="./common/util/commonUtil.js"></script>`)
-  _importArr.push(`<script src="./common/util/request.js"></script>`);
+  // _importArr.push(`<script src="./common/util/global.js"></script>`);
+  _importArr.push(`<script src="./common/util/common.util.js"></script>`);
+  _importArr.push(`<script src="./common/util/common.data.js"></script>`);
+  _importArr.push(`<script src="./common/util/mixin.js"></script>`);
+  // _importArr.push(`<script src="./common/util/request.js"></script>`);
   _importArr.push(`<script src="./common/util/filter.js"></script>`);
-  _importArr.push(`<script src="./common/util/socketManager.js"></script>`);
+  // _importArr.push(`<script src="./common/util/socketManager.js"></script>`);
+
+
+  _importArr.push(`<script src="./components/headerComponent.js"></script>`);
+  _importArr.push(`<script src="./components/modalComponent.js"></script>`);
+  _importArr.push(`<script src="./components/alertComponent.js"></script>`);
+  _importArr.push(`<script src="./components/loginComponent.js"></script>`);
 
 
   _importArr.push(`<script src="./components/timeLineComponent.js"></script>`);
   _importArr.push(`<script src="./components/homeComponent.js"></script>`);
-  _importArr.push(`<script src="./components/headerComponent.js"></script>`);
   _importArr.push(`<script src="./components/joinComponent.js"></script>`);
   _importArr.push(`<script src="./components/friendListComponet.js"></script>`);
   _importArr.push(`<script src="./components/messageBoxComponent.js"></script>`);
   _importArr.push(`<script src="./components/chatComponent.js"></script>`);
-  _importArr.push(`<script src="./components/socketComponent.js"></script>`);
+
   _importArr.push(`<script src="./routes/mainRouter.js"></script>`);
   _importArr.push(`<script src="./init.js"></script>`);
 

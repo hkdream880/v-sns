@@ -1,10 +1,9 @@
-var router = new VueRouter({
+var approuter = new VueRouter({
   routes: [
     {
       path: '/', 
-      components: {
-        default: Home
-      }
+      component:  Home,
+      props: true,
     },
     {
       path: '/timeLine', 
@@ -42,12 +41,12 @@ var router = new VueRouter({
   ]
 });
 
-router.beforeEach((to, from, next)=>{
+approuter.beforeEach((to, from, next)=>{
   NProgress.start();
   next();
   //global.commonUtil.getInstance().isLogin(next,next);
 });
 
-router.afterEach((to, from)=>{
+approuter.afterEach((to, from)=>{
   NProgress.done();
 });

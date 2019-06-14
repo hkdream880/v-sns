@@ -1,4 +1,4 @@
-var Header = {
+var headerComponent = {
   template: `
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <router-link to="/" class="navbar-brand">Home</router-link>
@@ -23,4 +23,5 @@ var Header = {
   </div>
 </nav>
   `,
-}
+  mixins: [mixins],
+};

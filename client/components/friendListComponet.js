@@ -77,15 +77,19 @@ var FriendsList = {
       }
     },
     getFollowList: function(){
-      global.request('get','/v1/follow',null,null,
-      $.proxy(function(res){
-        console.log(res);
-        this.showList = res.data;
+      this.$http({
+        url: '/v1/follow',
+        headers: this.getHeader(),
+        method: 'get',
+      }).
+      then($.proxy(function(res){
+        console.log(res.data);
+        this.showList = res.data.data;
         console.log(this.showList);
-      },this),
-      $.proxy(function(err){
-        console.log(err);
-        commonUtil.getInstance().showAlert(err.data,err.code);
+      },this))
+      .catch($.proxy(function(err){
+        console.log(err.response);
+        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
       },this));
     },
     findEmail: function(){
@@ -93,30 +97,36 @@ var FriendsList = {
         commonUtil.getInstance().showAlert('검색어를 입력 해 주세요');
         return;
       }
-      global.request('get','/v1/find-user',{email: this.findValue},{},
-      $.proxy(function(res){
+      this.$http({
+        url: '/v1/find-user',
+        headers: this.getHeader(),
+        method: 'get',
+        params: {email: this.findValue}
+      }).then($.proxy(function(res){
         console.log(res);
-        if(!res.data.list||res.data.list.length<=0){
-          commonUtil.getInstance().showAlert('결과가 없습니다.');
+        if(!res.data.data.list||res.data.data.list.length<=0){
+          this.$EventBus.$emit('showAlert','결과가 없습니다.',err.response.code);
           return;
         }
         this.resultType = this.filterValue;
-        this.showList = res.data.list;
-      },this),
-      $.proxy(function(err){
-        console.log(err);
-        commonUtil.getInstance().showAlert(err.data,err.code);
-      },this));
+        this.showList = res.data.data.list;
+      },this)).catch($.proxy(function(err){
+        console.log(err.response);
+        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+      },this))
     },
     addFollowList: function(id){
-      global.request('post','/v1/add-follow',{addId: id},null,
-      $.proxy(function(res){
-        console.log(res);
-      },this),
-      $.proxy(function(err){
-        console.log(err);
-        commonUtil.getInstance().showAlert(err.data,err.code);
-      },this));
+      this.$http({
+        url: '/v1/add-follow',
+        headers: this.getHeader(),
+        method: 'post',
+        data: {addId: id}
+      }).then($.proxy(function(res){
+        console.log(res.data);
+      },this)).catch($.proxy(function(err){
+        console.log(err.response);
+        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+      },this))
     },
     deleteFollowList: function(){
       console.log('deleteFollowList called');
@@ -127,14 +137,17 @@ var FriendsList = {
       방 체크 및 생성 api 제작
       리턴 받은 후 화면 전환
       */
-     global.request('post','/v1/check-room',{targetId: targetId},null,
-        $.proxy(function(res){
-          global.router.push('/chat/'+res.data);
-        },this),
-        $.proxy(function(err){
-          console.log(err);
-          commonUtil.getInstance().showAlert(err.data,err.code);
-        },this));
+     this.$http({
+        url: '/v1/check-room',
+        headers: this.getHeader(),
+        method: 'post',
+        data: {targetId: targetId}
+      }).then($.proxy(function(res){
+        approuter.push('/chat/'+res.data.data);
+      },this)).catch($.proxy(function(err){
+        console.log(err);
+        commonUtil.getInstance().showAlert(err.data,err.code);
+      },this));
     }
   },
   computed: {
@@ -145,11 +158,9 @@ var FriendsList = {
       }
     }
   },
+  mixins: [mixins],
   beforeRouteEnter (to, from, next) {
     next(function(vm){
-      console.log('router test !@@@@@@@@@@@@@@');
-      console.log(vm);
-      console.log(global.vm.$children);
       vm.getFollowList();
     });
   },

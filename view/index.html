@@ -15,15 +15,16 @@
   <link rel="stylesheet" href="./common/css/chat.css">
 </head>
 <body>
-  <div id="app">  
+  <div id="app">
     <header-component></header-component>
-    <router-view></router-view>
-    <socket-component></socket-component>
-  </div>
-  <br>
-  <br>
-  <div id="alert_area">
-    
+    <router-view v-bind:loginstate="loginState"></router-view>
+    <modal-component></modal-component>
+    <br>
+    <br>
+    <alert-component></alert-component>
+    <login-component 
+      v-on:setlogin="setLoginState"
+       v-bind:loginstate="loginState"></login-component>
   </div>
 <script src="./common/build/build.js"></script>
 <script>

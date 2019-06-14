@@ -1,17 +1,27 @@
 var app = null;
-(function vueInit(){
-  Vue.use(VueRouter)
-  app = new Vue({
-    mixins: [global],
-    components: {
-      'socket-component': socketComponent,
-      'header-component': Header,
-    },
-    router: router,
-    el: "#app",
-    created: function(){
-      console.log('app created!')
-    },
-    methods: commonUtil,
-  });
-})()
+Vue.prototype.$http = axios;
+Vue.use(VueRouter)
+Vue.prototype.$EventBus = new Vue();  //이벤트 버스
+app = new Vue({
+  mixins: [mixins],
+  data: {
+    loginState: false,
+  },
+  components: {
+    modalComponent: modalComponent,
+    headerComponent: headerComponent,
+    alertComponent: alertComponent,
+    loginComponent: loginComponent,
+  },
+  router: approuter,
+  el: "#app",
+  created: function(){
+    this.isLogin(this.getRoomList);
+  },
+  mounted: function(){
+    console.log(this);
+    
+    console.log('app mounted');
+  },
+  methods: common.util,
+});
