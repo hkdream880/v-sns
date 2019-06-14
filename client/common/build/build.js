@@ -5,6 +5,7 @@ var build = function (){
   var _url = './';
 
   var _importArr = [];
+
   _importArr.push(`<script src='./v-chat/socket.io.js'></script>`);
   _importArr.push(`<script src="./common/lib/vue.js"></script>`);
   _importArr.push(`<script src="./common/lib/vue-router.js"></script>`);
@@ -13,10 +14,12 @@ var build = function (){
   _importArr.push(`<script src="./common/lib/bootstrap.bundle.min.js"></script>`);
   _importArr.push(`<script src="./common/lib/bootstrap.min.js"></script>`);
   _importArr.push(`<script src="./common/lib/nprogress.js"></script>`);
+
   _importArr.push(`<script src="./common/util/global.js"></script>`);
   _importArr.push(`<script src="./common/util/commonUtil.js"></script>`)
   _importArr.push(`<script src="./common/util/request.js"></script>`);
   _importArr.push(`<script src="./common/util/filter.js"></script>`);
+  _importArr.push(`<script src="./common/util/socketManager.js"></script>`);
 
 
   _importArr.push(`<script src="./components/timeLineComponent.js"></script>`);
@@ -26,6 +29,7 @@ var build = function (){
   _importArr.push(`<script src="./components/friendListComponet.js"></script>`);
   _importArr.push(`<script src="./components/messageBoxComponent.js"></script>`);
   _importArr.push(`<script src="./components/chatComponent.js"></script>`);
+  _importArr.push(`<script src="./components/socketComponent.js"></script>`);
   _importArr.push(`<script src="./routes/mainRouter.js"></script>`);
   _importArr.push(`<script src="./init.js"></script>`);
 

@@ -18,7 +18,8 @@ var Chat = {
                 </div>
               </div>
               <div class="inbox_chat">
-                <div class="chat_list active_chat">
+
+                <div class="chat_list active_chat" v-for="room in roomList">
                   <div class="chat_people">
                     <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                     <div class="chat_ib">
@@ -27,120 +28,101 @@ var Chat = {
                     </div>
                   </div>
                 </div>
-                <div class="chat_list">
-                  <div class="chat_people">
-                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                    <div class="chat_ib">
-                      <h5>TBD <span class="chat_date">Dec 25</span></h5>
-                      <p>Chat Prototype</p>
-                    </div>
-                  </div>
-                </div>
+
               </div>
             </div>
             <div class="mesgs">
               <div class="msg_history">
                 <div class="incoming_msg">
-                  <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                  <div class="received_msg">
-                    <div class="received_withd_msg">
-                      <p>Test which is a new approach to have all
-                        solutions</p>
-                      <span class="time_date"> 11:01 AM    |    June 9</span></div>
+                  <div v-for="chat in chatList">
+
+                  <div v-if="chat.userId !== userInfo.id" class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                    <div v-if="chat.userId !== userInfo.id" class="received_msg">
+                      <div class="received_withd_msg">
+                        <p>
+                          {{chat.chat}}
+                        </p>
+                        <span class="time_date"> 11:01 AM    |    June 9</span></div>
+                    </div>
+                  
+                    <div v-if="chat.userId === userInfo.id" class="outgoing_msg">
+                    <div class="sent_msg">
+                      <p>
+                        {{chat.chat}}
+                      </p>
+                      <span class="time_date"> 11:01 AM    |    June 9</span> </div>
+                  </div>
+
+                  </div>
+
+                  
                   </div>
                 </div>
-                <div class="outgoing_msg">
-                  <div class="sent_msg">
-                    <p>Test which is a new approach to have all
-                      solutions</p>
-                    <span class="time_date"> 11:01 AM    |    June 9</span> </div>
-                </div>
-                <div class="incoming_msg">
-                  <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                  <div class="received_msg">
-                    <div class="received_withd_msg">
-                      <p>Test, which is a new approach to have</p>
-                      <span class="time_date"> 11:01 AM    |    Yesterday</span></div>
-                  </div>
-                </div>
-                <div class="outgoing_msg">
-                  <div class="sent_msg">
-                    <p>Apollo University, Delhi, India Test</p>
-                    <span class="time_date"> 11:01 AM    |    Today</span> </div>
-                </div>
-                <div class="incoming_msg">
-                  <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                  <div class="received_msg">
-                    <div class="received_withd_msg">
-                      <p>We work directly with our designers and suppliers,
-                        and sell direct to you, which means quality, exclusive
-                        products, at a price anyone can afford.</p>
-                      <span class="time_date"> 11:01 AM    |    Today</span></div>
+                <div class="type_msg">
+                  <div class="input_msg_write">
+                    <input v-model="chat" v-bind:disabled="roomId==='none'" type="text" class="write_msg" v-bind:placeholder="chatPlaceHolder" />
+                    <button class="msg_send_btn" type="button" @click="sendChat"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
                   </div>
                 </div>
               </div>
-              <div class="type_msg">
-                <div class="input_msg_write">
-                  <input type="text" class="write_msg" placeholder="Type a message" />
-                  <button class="msg_send_btn" type="button" @click="sendChat"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>  
-        <p class="text-center top_spac"> Design by <a target="_blank" href="#">Sunil Rajput</a></p>
-      </div>
-    </div>`,
+            </div>  
+          <p class="text-center top_spac"> Design by <a target="_blank" href="#">Sunil Rajput</a></p>
+        </div>
+      </div>`,
   props: ['roomId'],
   data: function(){
     return {
       socket: null,
+      roomList: global.chatRoomList,
+      userInfo: global.userInfo,
+      chatList: [],
+      chat: '',
     }
   },
   methods: {
     init: function(vm){
-      // console.log('socket init');
-      // this.socket = io.connect('http://localhost:3000/chat', {
-      //   path: '/v-chat',
-      //   query: `roomId=${this.roomId}`
-      // });
-      // console.log(this.socket);
-      // this.socket.on('join',function(data){
-      //   console.log('socket join event called ',data);
-      // });
-      // this.socket.on('exit',function(){
-      //   console.log('socket exit event called');
-      // });
-      // this.socket.on('chat',function(data){
-      //   console.log('socket chat event called data : ',data);
-      // });
+      console.log('chat component init');
       /*
       TODO
         - 방 목록과 해당 방 목록의 마지막 채팅 내용 받기
         - 방 번호 있으면 해당 채팅 활성화
       */
+      if(this.roomId==='none'){
+        this.chatList = [];
+      }else{
+        this.getChat();
+      }
     },
-    getChat: function(res){
-      console.log('getChat called res: ',res);
+    getChat: function(){
+      console.log('getChat called res: ');
+      global.request('get','/v1/chat-contents',{roomId: this.roomId},null,
+      $.proxy(function(res){
+        console.log(res.data);
+        this.chatList = res.data;
+      },this))
     },
     sendChat: function(){
       console.log('sendChat called');
-      request('post','/v1/chat',{chat: 'testChat',roomId: 'testRoom'},null,
+      global.request('post','/v1/chat',{chat: this.chat,roomId: this.roomId},null,
       $.proxy(function(res){
         console.log(res);
       },this),
       $.proxy(function(err){
         console.log(err);
       },this));
-    },
-    getChatRoomList: function(){
-      console.log('getChatRoomList called');
     }
   },
   computed: {
-    
+    chatPlaceHolder : function(){
+      return this.roomId==='none'?'채팅방을 선택 해 주세요':'메세지를 입력 해 주세요';
+    }
   },
   beforeRouteEnter (to, from, next) {
     next(function(vm){
+      // commonUtil.getInstance().setNowRouter(vm);
+      console.log('router test !@@@@@@@@@@@@@@');
+      console.log(vm);
+      console.log(global.vm.$children);
       vm.init();
     });
   },

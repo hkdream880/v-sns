@@ -61,9 +61,8 @@ var TimeLine = {
     },
     methods: {
       getContents : function(){
-        console.log('testMethod called !!!');
         ///contents
-        request('get','/v1/contents',null,null,
+        global.request('get','/v1/contents',null,null,
           $.proxy(function(res){
             this.userId = res.reqUser;
             this.contents = res.data;
@@ -87,7 +86,7 @@ var TimeLine = {
         }
 
         //var request = function(method, url, param, header,success, fail, option){
-        request('post','/v1/write',formData,header,
+        global.request('post','/v1/write',formData,header,
         $.proxy(function(res){
           this.message = null; 
           this.imgFile = null;
@@ -109,7 +108,7 @@ var TimeLine = {
           reply: $inputObj.value,
           contentId: contentId,
         }
-        request('post','/v1/reply',requestObj,null,
+        global.request('post','/v1/reply',requestObj,null,
         $.proxy(function(res){
           if(res.code===200){
             $inputObj.value = '';

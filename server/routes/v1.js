@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { User, Contents, HashTag, Replies, Room, Chat, } = require('../models');
+const { User, Contents, HashTag, Replies, Room, Chat, sequelize } = require('../models');
 const queryOption = require('sequelize').Op;
 const bcrypt = require('bcrypt');
 const { isLoggedIn, isNotLoggedIn } = require('./loginCheck');
@@ -37,6 +37,7 @@ router.get('/login-check',isLoggedIn,(req, res, next)=>{
         email: req.user.email,
         phone: req.user.phone,
         profile: req.user.profile,
+        id: req.user.id,
       }
     }
   });
@@ -106,6 +107,7 @@ router.post('/login',isNotLoggedIn,(req,res,next)=>{
         email: req.user.email,
         phone: req.user.phone,
         profile: req.user.profile,
+        id: req.user.id,
       };
       return res.status(returnObj.code).json(returnObj);
     });
@@ -281,69 +283,107 @@ router.get('/follow',isLoggedIn, async (req, res, next)=>{
   }
 })
 
-router.post('/chat',(req, res, next )=>{
-  req.app.get('io').of('/chat').to(req.body.roomId).emit('chat',{
-    chat: 'test 입니다.'
-  });
-  return res.status(200).json({
-    code: 200,
-    data: req.body
-  })
+router.post('/chat',isLoggedIn,async (req, res, next )=>{
+  try {
+    const test = await Chat.create({
+      chat: req.body.chat,
+      userId: req.user.id,
+      roomId: req.body.roomId
+    });
+    req.app.get('io').of('/chat').to(req.body.roomId).emit('chat',{
+      chat: req.body.chat,
+      userId: req.user.id,
+      roomId: req.body.roomId
+    });
+    return res.status(200).json({
+      code: 200,
+      data: test
+    }) 
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: 'something wrong'
+    })
+  }
 });
 
 router.post('/check-room',isLoggedIn,async (req, res, next)=>{
   try {
-    //해당 유저들이 속해있는 방 리스트 받기
-    const usersAllRoomList = await Room.findAll({
-    include: [{
-        model: User,
-        attributes: ['id','email','profile'],
-        through: 'roomUser',
-        where: { [queryOption.or]: [{id: req.user.id},{id: req.body.targetId}] }
-      }],
-    })
-
-    let newRoomFlag = true;
-    let compareArr = [];
-    let targetRoomId = null;
-
-    //방 리스트 받아서 해당 유저들이 속한 방 찾기
-    for(let i=0;i<usersAllRoomList.length;i++){
-      if(usersAllRoomList[i].users.length<=1){
-        continue;
-      }
-      console.log('roomid : ',usersAllRoomList[i].id);
-      for(let j=0;j<usersAllRoomList[i].users.length;j++){
-        console.log('userId : ',usersAllRoomList[i].users[j].id);
-        compareArr.push(usersAllRoomList[i].users[j].id);
-      }
-      //두 유저가 속해있는 방 찾을 경우
-      console.log(compareArr);
-      console.log(compareArr.includes(req.user.id));
-      console.log(compareArr.includes(req.body.targetId));
-      if(compareArr.includes(req.user.id)&&compareArr.includes(req.body.targetId)){
-        targetRoomId = usersAllRoomList[i].id
-        newRoomFlag = false;
-        break;
-      }
-      compareArr = [];
-    }
-    //두 유저가 속해있는 방 찾지 못할 경우 새로운 방 생성
-    console.log('newRoomFlag : ',newRoomFlag);
-    if(newRoomFlag){
-      //채팅 user 정보 받기
+    let returnValue = null;
+    const resultValue = await sequelize.query(
+    `SELECT user1.roomId
+    FROM (select roomuser.roomId ,roomuser.userId
+    from rooms
+    inner join roomuser on roomuser.roomId = rooms.id
+    where roomuser.userId = ${req.body.targetId } AND rooms.deletedAt is null) user1, (select roomuser.roomId ,roomuser.userId
+    from rooms
+    inner join roomuser on roomuser.roomId = rooms.id
+    where roomuser.userId = ${req.user.id } AND rooms.deletedAt is null) user2
+    WHERE user1.roomId = user2.roomId;`,
+      { type: sequelize.QueryTypes.SELECT });
+    if(resultValue.length<=0){
       const user = await User.findOne({where : {id:req.user.id}});
       const targetUser = await User.findOne({where : {id:req.body.targetId}});
       const RoomResult = await Room.create(user);
       await user.addRoom(RoomResult);
       await targetUser.addRoom(RoomResult);
-      targetRoomId = RoomResult.id;
-      //TODO: 상대유저 초대
+      returnValue = RoomResult.id;
+    }else if(resultValue.length>1){
+      throw Error({
+        name: '500',
+        message: 'duplicated room info'
+      });
+    }else{
+      returnValue = resultValue[0].roomId;
     }
     return res.status(200).json({
       code: 200,
-      data: targetRoomId  //방번호 리턴
+      data: returnValue  //방번호 리턴
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: error
+    });
+  }
+});
+
+router.get('/room-list',isLoggedIn,async (req, res, next)=>{
+  try {
+    const roomList = await Room.findAll({
+      include: [{
+        model: User,
+        through: 'roomUser',
+        where: { id: req.user.id },
+        attributes: ['id','email','profile']
+      }],
+      attributes: ['id']
+    })
+    return res.status(200).json({
+      code: 200,
+      data: roomList,
+    })
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      data: error
+    });
+  }
+});
+
+router.get('/chat-contents',isLoggedIn,async (req, res, next)=>{
+  try {
+    console.log(req.query)
+    const chatContents = await Chat.findAll({ 
+      where: { roomId: req.query.roomId}
+    });
+    return res.status(200).json({
+      code: 200,
+      data: chatContents,
+    })
   } catch (error) {
     console.error(error);
     return res.status(500).json({

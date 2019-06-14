@@ -1,4 +1,4 @@
-var request = function(method, url, param, header,success, fail, option){
+global.request = function(method, url, param, header,success, fail, option){
   //global.axiosInstance.defaults.headers.common['authorization'] = commonUtil.getInstance().getSessionStorage('authorizationToken');
   var headers = null;
   var axiocConfig = {

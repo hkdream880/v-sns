@@ -3,43 +3,37 @@ var router = new VueRouter({
     {
       path: '/', 
       components: {
-        default: Home,
-        header: Header
+        default: Home
       }
     },
     {
       path: '/timeLine', 
       components: {
-        default: TimeLine,
-        header: Header
+        default: TimeLine
       }
     },
     {
       path: '/join', 
       components: {
-        default: Join,
-        header: Header
+        default: Join
       }
     },
     {
       path: '/message', 
       components: {
-        default: MessageBox,
-        header: Header
+        default: MessageBox
       }
     },
     {
       path: '/friends', 
       components: {
-        default: FriendsList,
-        header: Header
+        default: FriendsList
       }
     },
     {
       path: '/chat/:roomId', 
       components: {
-        default: Chat,
-        header: Header
+        default: Chat
       },
       props: {
         default: true,
@@ -51,6 +45,7 @@ var router = new VueRouter({
 router.beforeEach((to, from, next)=>{
   NProgress.start();
   next();
+  //global.commonUtil.getInstance().isLogin(next,next);
 });
 
 router.afterEach((to, from)=>{

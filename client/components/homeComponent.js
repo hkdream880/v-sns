@@ -45,6 +45,10 @@ var Home = {
           </div>
         </div>
       </div>
+      <button @click="socketTest('1')"> socket1 test </button>
+      <button @click="socketTest('3')"> socket3 test </button>
+      <button @click="socketTest('4')"> socket4 test </button>
+      <button @click="socketDisconnect()"> socketDisconnect test </button>
     </main>
   `,
   data: function(){
@@ -55,16 +59,22 @@ var Home = {
     }
   },
   methods: {
+    emitTest: function(args){
+      console.log('emitTest args: ',args);
+      alert('emitTest test');
+    },
     doLogin: function(e){
-      //var request = function(method, url, param, success, fail){
-      request('post','/v1/login',{ email: this.email, password: this.password },null,
+      global.request('post','/v1/login',{ email: this.email, password: this.password },null,
         $.proxy(function(res){
           if(res.code===201){
             this.loginState = true;
             global.loginState = this.loginState ;
             global.userInfo = res.info;
-            commonUtil.getInstance().setSessionStorage('authorizationToken',res.token);
+            global.commonUtil.getInstance().setSessionStorage('authorizationToken',res.token);
             $('#login_close_btn').trigger('click');
+            if(!global.chatRoomList){
+              global.commonUtil.getInstance().getRoomList();
+            };
           }
         },this),
         $.proxy(function(err){
@@ -75,8 +85,33 @@ var Home = {
         },this)
       )   
     },
+    socketTest: function(socketIdx){
+      console.log('socketTest');
+      console.log(socketIdx);
+      global.request('post','/v1/chat',{chat: 'testChat',roomId: socketIdx},null,
+      $.proxy(function(res){
+        console.log(res);
+      },this),
+      $.proxy(function(err){
+        console.log(err);
+      },this));
+    },
+    socketDisconnect: function(){
+      global.socket.disconnect();
+    }
   },
   computed: {
     
-  }
+  },
+  beforeRouteEnter (to, from, next) {
+    next(function(vm){
+      console.log('router test !@@@@@@@@@@@@@@');
+      //console.log(app.globalVueEvt('home component globalVueEvt test'));
+      //app.mixinTest('from home')
+      //vm.$root.globalVueEvt(this.mixinVal);
+    });
+  },
+  beforeRouteLeave (to, from, next) {
+    next();
+  }   
 };

@@ -1,14 +1,17 @@
-global.axiosInstance = axios.create();
-commonUtil.getInstance().isLogin(vueInit,vueInit);
-
-function vueInit(){
+var app = null;
+(function vueInit(){
   Vue.use(VueRouter)
-  console.log('vue init');
-  global.vm = new Vue({
-    router,
+  app = new Vue({
+    mixins: [global],
+    components: {
+      'socket-component': socketComponent,
+      'header-component': Header,
+    },
+    router: router,
     el: "#app",
-    data: {
-      showError: false,
-    }
+    created: function(){
+      console.log('app created!')
+    },
+    methods: commonUtil,
   });
-}
+})()

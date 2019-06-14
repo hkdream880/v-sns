@@ -77,7 +77,7 @@ var FriendsList = {
       }
     },
     getFollowList: function(){
-      request('get','/v1/follow',null,null,
+      global.request('get','/v1/follow',null,null,
       $.proxy(function(res){
         console.log(res);
         this.showList = res.data;
@@ -93,7 +93,7 @@ var FriendsList = {
         commonUtil.getInstance().showAlert('검색어를 입력 해 주세요');
         return;
       }
-      request('get','/v1/find-user',{email: this.findValue},{},
+      global.request('get','/v1/find-user',{email: this.findValue},{},
       $.proxy(function(res){
         console.log(res);
         if(!res.data.list||res.data.list.length<=0){
@@ -109,7 +109,7 @@ var FriendsList = {
       },this));
     },
     addFollowList: function(id){
-      request('post','/v1/add-follow',{addId: id},null,
+      global.request('post','/v1/add-follow',{addId: id},null,
       $.proxy(function(res){
         console.log(res);
       },this),
@@ -127,11 +127,9 @@ var FriendsList = {
       방 체크 및 생성 api 제작
       리턴 받은 후 화면 전환
       */
-      request('post','/v1/check-room',{targetId: targetId},null,
+     global.request('post','/v1/check-room',{targetId: targetId},null,
         $.proxy(function(res){
-          console.log('moveChat res');
-          console.log(res);
-          router.push('/chat/'+res.data);
+          global.router.push('/chat/'+res.data);
         },this),
         $.proxy(function(err){
           console.log(err);
@@ -149,6 +147,9 @@ var FriendsList = {
   },
   beforeRouteEnter (to, from, next) {
     next(function(vm){
+      console.log('router test !@@@@@@@@@@@@@@');
+      console.log(vm);
+      console.log(global.vm.$children);
       vm.getFollowList();
     });
   },

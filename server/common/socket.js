@@ -29,16 +29,9 @@ module.exports = (server,app,sessionMiddleware) => {
     const req = socket.request;
     const { headers : { cookie } } = req;
     const reqParam = querystring.parse(req.url.split('?')[1]);
-    console.log(JSON.stringify(reqParam));
-    console.log('chat namespace accessed!',reqParam.roomName);
     //const roomId = referer.split('/')[referer.split('/').length-1].replace(/\?.+/,'');
-    const roomId = reqParam.roomName;
-    console.log('roomId test@@@@@@@@@@@@@@@@@');
-    console.log(roomId)
+    const roomId = reqParam.roomId;
     socket.join(roomId);
-    //console.log(socket.join(roomId));
-    console.log('join event');
-    console.log(socket.adapter.rooms[roomId].length);
     socket.to(roomId).emit('join',{
       user:'system',
       chat:`test님이 입장하셨습니다.`,
@@ -52,10 +45,16 @@ module.exports = (server,app,sessionMiddleware) => {
     //   }
     // })
     socket.on('disconnect',()=>{
+      console.log('disconnect : ',roomId)
       socket.leave(roomId);
       const currentRoom = socket.adapter.rooms[roomId];
       const userCount = currentRoom ? currentRoom.length : 0;
-      if(userCount === 0 ){
+      socket.to(roomId).emit('exit',{
+        user: 'system',
+        chat: `${req.session.color}님이 퇴장하셨습니다.`,
+        number: socket.adapter.rooms[roomId]?socket.adapter.rooms[roomId].length:0,
+      });
+      // if(userCount === 0 ){
         // axios.delete(`http://localhost:8005/room/${roomId}`)
         //   .then(()=>{
         //     console.log('room remove success');
@@ -63,12 +62,12 @@ module.exports = (server,app,sessionMiddleware) => {
         //   .catch((error)=>{
         //     console.error(error);
         //   })
-      }else{
-        socket.to(roomId).emit('exit',{
-          user: 'system',
-          chat: `${req.session.color}님이 퇴장하셨습니다.`,
-          number: socket.adapter.rooms[roomId].length,
-        });
+      // }else{
+        // socket.to(roomId).emit('exit',{
+        //   user: 'system',
+        //   chat: `${req.session.color}님이 퇴장하셨습니다.`,
+        //   number: socket.adapter.rooms[roomId].length,
+        // });
         // axios.post(`http://localhost:8005/room/${roomId}/sys`,{
         //   type : 'exit',
         // },{
@@ -76,7 +75,7 @@ module.exports = (server,app,sessionMiddleware) => {
         //     Cookie: req.headers.cookie,
         //   }
         // })
-      };
+      // };
     });
     // socket.on('dm',(data)=>{
     //   socket.to(data.target).emit('dm',data)
