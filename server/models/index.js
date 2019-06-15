@@ -35,6 +35,7 @@ db.HashTag.belongsToMany(db.Contents,{through: 'hashContents'});
 
 db.User.belongsToMany(db.Room,{through: 'roomUser'});
 db.Room.belongsToMany(db.User,{through: 'roomUser'});
+db.Room.belongsToMany(db.User,{through: 'roomUser', as: 'userForRoom'});
 
 db.User.hasMany(db.Chat,{foreignKey:'userId', sourceKey:'id'});
 db.Chat.belongsTo(db.User,{foreignKey:'userId', targetKey:'id'});

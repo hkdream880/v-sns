@@ -72,7 +72,8 @@ var TimeLine = {
           this.contents = res.data.data;
         },this)).
         catch($.proxy(function(err){
-          console.log(err.response)
+          console.log(err.response);
+          this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
         },this));
       },
       uploadSns: function(e){ //sns 업로드
@@ -125,6 +126,7 @@ var TimeLine = {
           }
         },this)).catch($.proxy(function(err){
           console.log(err.response);
+          this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
         },this));
       }
     },

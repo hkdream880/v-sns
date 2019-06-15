@@ -11,9 +11,6 @@ var headerComponent = {
         <router-link to="/timeLine" class="nav-link">Time Line</router-link>
       </li>
       <li class="nav-item">
-        <router-link to="/message" class="nav-link">Message Box</router-link>
-      </li>
-      <li class="nav-item">
         <router-link to="/friends" class="nav-link">Friends List</router-link>
       </li>
       <li class="nav-item">

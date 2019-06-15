@@ -18,17 +18,19 @@ var Chat = {
                 </div>
               </div>
               <div class="inbox_chat">
-              <router-link to="/chat/1" >
-                <div class="chat_list" v-bind:class="{ active_chat: room.id==roomId }" v-for="room in roomlist">
+              <router-link :to="{ name: 'chat', params: {roomId: room.id} }" v-for="room in roomlist">
+                <div class="chat_list" v-bind:class="{ active_chat: room.id==roomId }" >
                   <div class="chat_people">
                     <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                     <div class="chat_ib">
-                      <h5>{{room.chats[0].chat}} <span class="chat_date">Dec 25</span></h5>
-                      <p>Chat prototype</p>
+                      <h5>{{room.chats[0]?room.chats[0].chat:'대화가 없습니다.'}} 
+                        <span class="chat_date">{{room.chats[0]?room.chats[0].createdAt:''}}</span>
+                      </h5>
+                      <p>{{room.users[0].email}}</p>
                     </div>
                   </div>
                 </div>
-                </router-link>
+              </router-link>
               </div>
             </div>
             <div class="mesgs">
@@ -42,7 +44,7 @@ var Chat = {
                         <p>
                           {{chat.chat}}
                         </p>
-                        <span class="time_date"> 11:01 AM    |    June 9</span></div>
+                        <span class="time_date"> {{chat.createdAt}} </span></div>
                     </div>
                   
                     <div v-if="chat.userId === userinfo.id" class="outgoing_msg">
@@ -50,9 +52,8 @@ var Chat = {
                       <p>
                         {{chat.chat}}
                       </p>
-                      <span class="time_date"> 11:01 AM    |    June 9</span> </div>
+                      <span class="time_date"> {{chat.createdAt}} </span> </div>
                   </div>
-
                   </div>
 
                   
@@ -60,8 +61,8 @@ var Chat = {
                 </div>
                 <div class="type_msg">
                   <div class="input_msg_write">
-                    <input v-model="chat" v-bind:disabled="roomId==='none'" type="text" class="write_msg" v-bind:placeholder="chatPlaceHolder" />
-                    <button class="msg_send_btn" type="button" @click="sendChat"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                    <input v-model="chat" v-bind:disabled="roomId==='none'" type="text"  v-on:keyup.enter="sendChat" class="write_msg" v-bind:placeholder="chatPlaceHolder" />
+                    <button class="msg_send_btn" type="button" v-on:click="sendChat" ><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
                   </div>
                 </div>
               </div>
@@ -106,16 +107,21 @@ var Chat = {
       }
       for(var i=0;i<this.roomlist.length;i++){
         if(this.roomlist[i].id==chatObj.roomId){
-          this.roomlist[i].chats[0] = chatObj;
+          if(this.roomlist[i].chats.length<=0){
+            this.roomlist[i].chats.push(chatObj);
+          }else{
+            //this.roomlist[i].chats[0] = chatObj;  동적 변환 안됨
+            this.roomlist[i].chats.splice(0, 1, chatObj);
+          }
           break;
         }
       }
     },
-    setLastChat: function(chatObj){
-      
-    },
     sendChat: function(){
       console.log('sendChat called');
+      if(this.chat.length<=0){
+        return;
+      }
       this.$http({
         url: '/v1/chat',
         headers: this.getHeader(),
@@ -145,6 +151,9 @@ var Chat = {
   created: function(){
     //getNewChat
     this.$EventBus.$on('newchat',this.getNewChat);
+  },
+  mounted: function(){
+    
   },
   beforeRouteEnter (to, from, next) {
     next(function(vm){

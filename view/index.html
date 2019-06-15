@@ -16,7 +16,6 @@
 </head>
 <body>
   <div id="app">
-    <div>test / {{userInfo}}  /  {{loginState}}</div>
     <header-component></header-component>
     <router-view v-bind:loginstate="loginState" v-bind:roomlist="chatRoomList" v-bind:userinfo="userInfo" ></router-view>
     <modal-component></modal-component>

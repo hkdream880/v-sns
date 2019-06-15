@@ -55,9 +55,10 @@ var loginComponent = {
       }; 
       this.$http(axiocConfig).
       then(this.loginCallback).
-      catch(function(err){
+      catch($.proxy(function(err){
         console.log(err);
-      });
+        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+      },this));
     },
     loginCallback:function(response){
       console.log('loginCallback response:', response);
@@ -71,11 +72,8 @@ var loginComponent = {
         console.log(this.loginState);
         this.closeLogin();
       }else{
-        this.loginFail(response);
+        this.$EventBus.$emit('showAlert',err.data.data,err.data.code);
       }
-    },
-    loginFail: function(err){
-      this.$EventBus.$emit('showAlert',err.data.data,err.data.code);
     },
     closeLogin: function(){
       $login.modal('hide');

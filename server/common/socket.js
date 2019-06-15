@@ -17,74 +17,25 @@ module.exports = (server,app,sessionMiddleware) => {
   io.use((socket,next)=>{
     sessionMiddleware(socket.request, socket.request.res, next);
   });
-
   room.on('connection',(socket)=>{
-    console.log('room namespace accessed');
     socket.on('disconnect',()=>{
-      console.log('room namespace disconnected');
+      console.log('room disconnect');
     });
   });
-
   chat.on('connection',(socket)=>{
     const req = socket.request;
     const { headers : { cookie } } = req;
+    console.log('socket chat connection !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    console.log(req.url.split('?'));
     const reqParam = querystring.parse(req.url.split('?')[1]);
     //const roomId = referer.split('/')[referer.split('/').length-1].replace(/\?.+/,'');
     const roomId = reqParam.roomId;
     socket.join(roomId);
-    socket.to(roomId).emit('join',{
-      user:'system',
-      chat:`test님이 입장하셨습니다.`,
-      number: socket.adapter.rooms[roomId].length,
-    });
-    // axios.post(`http://localhost:8005/room/${roomId}/sys`,{
-    //   type : 'join',
-    // },{
-    //   headers: {
-    //     Cookie: req.headers.cookie,
-    //   }
-    // })
+    socket.to(roomId).emit('join',roomId);
     socket.on('disconnect',()=>{
-      console.log('disconnect : ',roomId)
+      console.log('disconnect : ',roomId);
       socket.leave(roomId);
-      const currentRoom = socket.adapter.rooms[roomId];
-      const userCount = currentRoom ? currentRoom.length : 0;
-      socket.to(roomId).emit('exit',{
-        user: 'system',
-        chat: `${req.session.color}님이 퇴장하셨습니다.`,
-        number: socket.adapter.rooms[roomId]?socket.adapter.rooms[roomId].length:0,
-      });
-      // if(userCount === 0 ){
-        // axios.delete(`http://localhost:8005/room/${roomId}`)
-        //   .then(()=>{
-        //     console.log('room remove success');
-        //   })
-        //   .catch((error)=>{
-        //     console.error(error);
-        //   })
-      // }else{
-        // socket.to(roomId).emit('exit',{
-        //   user: 'system',
-        //   chat: `${req.session.color}님이 퇴장하셨습니다.`,
-        //   number: socket.adapter.rooms[roomId].length,
-        // });
-        // axios.post(`http://localhost:8005/room/${roomId}/sys`,{
-        //   type : 'exit',
-        // },{
-        //   headers: {
-        //     Cookie: req.headers.cookie,
-        //   }
-        // })
-      // };
+      //const userCount = currentRoom ? currentRoom.length : 0; //유저 수
     });
-    // socket.on('dm',(data)=>{
-    //   socket.to(data.target).emit('dm',data)
-    //   //socket.to(data.target) 1:1
-    //   //socket.to(방아이디) room 채팅
-    //   //socket.emit() 전체 
-    // });
-    // socket.on('ban',(data)=>{
-    //   socket.to(data.id).emit('ban')
-    // });
   });  
 };

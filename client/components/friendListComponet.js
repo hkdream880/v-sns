@@ -17,7 +17,7 @@ var FriendsList = {
         </button>
         <div class="dropdown-menu">
           <button class="dropdown-item" @click="filterValue='email'">친구찾기</button>
-          <button class="dropdown-item" @click="filterValue='list'">친구목록검색</button>
+          <!--<button class="dropdown-item" @click="filterValue='list'">친구목록검색</button>-->
           <!--<div role="separator" class="dropdown-divider"></div>
           <a class="dropdown-item" href="#">Separated link</a>-->
         </div>
@@ -29,34 +29,22 @@ var FriendsList = {
         <li class="list-group-item" v-for="item in showList">
           <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
           {{item.email}}
-          <!-- 친구 찾기 -->
-          <button v-if="resultType==='email'" type="button" class="btn btn-primary" @click="addFollowList(item.id)">Follow</button>
           <!-- 친구 목록 -->
-          <button v-if="resultType==='list'" type="button" class="btn btn-primary" @click="moveChat(item.id)">Chat</button>
-          <button v-if="resultType==='list'" type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">Delete</button>
+          <button type="button" class="btn btn-primary" @click="moveChat(item.id)">Chat</button>
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">Delete</button>
         </li>
       </ul>
     </div>
 
-    
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            삭제하시겠습니까?
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-danger">삭제</button>
-          </div>
-        </div>
-      </div>
+    <div class="v-friend-list" v-show="findList.length>0">
+      <ul class="list-group">
+        <li class="list-group-item" v-for="item in findList">
+          <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
+          {{item.email}}
+          <!-- 친구 찾기 -->
+          <button v-if="resultType==='email'" type="button" class="btn btn-primary" @click="addFollowList(item.id)">Follow</button>
+        </li>
+      </ul>
     </div>
   </div>
   `,
@@ -65,6 +53,7 @@ var FriendsList = {
       filterValue: 'email', //email or list
       findValue: '',
       showList : [],
+      findList: [],
       resultType: 'list', //email or list
     }
   },
@@ -89,12 +78,12 @@ var FriendsList = {
       },this))
       .catch($.proxy(function(err){
         console.log(err.response);
-        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+        this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
       },this));
     },
     findEmail: function(){
       if(!this.findValue){
-        commonUtil.getInstance().showAlert('검색어를 입력 해 주세요');
+        this.$EventBus.$emit('showAlert','검색어를 입력해 주세요.');
         return;
       }
       this.$http({
@@ -105,17 +94,23 @@ var FriendsList = {
       }).then($.proxy(function(res){
         console.log(res);
         if(!res.data.data.list||res.data.data.list.length<=0){
-          this.$EventBus.$emit('showAlert','결과가 없습니다.',err.response.code);
+          this.$EventBus.$emit('showAlert','결과가 없습니다.',err.response.data.code);
           return;
         }
         this.resultType = this.filterValue;
-        this.showList = res.data.data.list;
+        this.findList = res.data.data.list;
       },this)).catch($.proxy(function(err){
         console.log(err.response);
-        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+        this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
       },this))
     },
     addFollowList: function(id){
+      for(var i=0;i<this.showList.length;i++){
+        if(this.showList[i].id == id){
+          this.$EventBus.$emit('showAlert','목록에 존재 합니다.');
+          return;
+        }
+      }
       this.$http({
         url: '/v1/add-follow',
         headers: this.getHeader(),
@@ -123,9 +118,10 @@ var FriendsList = {
         data: {addId: id}
       }).then($.proxy(function(res){
         console.log(res.data);
+        this.showList.push(res.data.data);
       },this)).catch($.proxy(function(err){
         console.log(err.response);
-        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+        this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
       },this))
     },
     deleteFollowList: function(){
@@ -146,7 +142,7 @@ var FriendsList = {
         approuter.push('/chat/'+res.data.data);
       },this)).catch($.proxy(function(err){
         console.log(err);
-        commonUtil.getInstance().showAlert(err.data,err.code);
+        this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
       },this));
     }
   },
@@ -159,6 +155,9 @@ var FriendsList = {
     }
   },
   mixins: [mixins],
+  created: function(){
+    
+  },
   beforeRouteEnter (to, from, next) {
     next(function(vm){
       vm.getFollowList();

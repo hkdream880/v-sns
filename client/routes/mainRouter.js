@@ -7,32 +7,21 @@ var approuter = new VueRouter({
     },
     {
       path: '/timeLine', 
-      components: {
-        default: TimeLine
-      }
+      component: TimeLine,
     },
     {
       path: '/join', 
-      components: {
-        default: Join
-      }
-    },
-    {
-      path: '/message', 
-      components: {
-        default: MessageBox
-      }
+      component:  Join,
     },
     {
       path: '/friends', 
-      components: {
-        default: FriendsList
-      }
+      component: FriendsList
     },
     {
       path: '/chat/:roomId', 
       component: Chat,
       props: true,
+      name: 'chat'
     },
   ]
 });

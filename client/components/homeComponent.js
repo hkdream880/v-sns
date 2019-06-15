@@ -14,11 +14,6 @@ var Home = {
           </div>
         </div>
       </div>
-      <button @click="socketTest('1')"> socket1 test </button>
-      <button @click="socketTest('3')"> socket3 test </button>
-      <button @click="socketTest('4')"> socket4 test </button>
-      <button @click="socketDisconnect()"> socketDisconnect test </button>
-      <button v-on:click="bustest()">bus test</button>
     </main>
   `,
   data: function(){
@@ -28,58 +23,11 @@ var Home = {
     }
   },
   methods: {
-    bustest: function(){
-      //this.$EventBus.$emit('showAlert','param1','param2');
-      
-    },
     showLogin: function(){
       console.log('showLogin');
       this.$EventBus.$emit('showLogin');
       console.log(this.$EventBus)
-
     },
-    doLogin: function(e){
-      // global.request('post','/v1/login',{ email: this.email, password: this.password },null,
-      //   $.proxy(function(res){
-      //     if(res.code===201){
-      //       this.loginState = true;
-      //       global.loginState = this.loginState ;
-      //       global.userInfo = res.info;
-      //       global.commonUtil.getInstance().setSessionStorage('authorizationToken',res.token);
-      //       $('#login_close_btn').trigger('click');
-      //       if(!global.chatRoomList){
-      //         global.commonUtil.getInstance().getRoomList();
-      //       };
-      //     }
-      //   },this),
-      //   $.proxy(function(err){
-      //     $('.alert').removeClass('hide')
-      //     setTimeout(function(){
-      //       $('.alert').addClass('hide')
-      //     },3000)
-      //   },this)
-      // )   
-    },
-    socketTest: function(socketIdx){
-      console.log('socketTest');
-      console.log(socketIdx);
-      this.$http({
-        url: '/v1/chat',
-        headers: this.getHeader(),
-        method: 'post',
-        data: {chat: 'testChat',roomId: socketIdx}
-      }).then($.proxy(function(res){
-        console.log(res);
-      },this)).catch($.proxy(function(err){
-        console.log(err);
-      },this));
-    },
-    socketDisconnect: function(){
-      //global.socket.disconnect();
-    }
-  },
-  computed: {
-    
   },
   props: ['loginstate'],
   mounted: function(){

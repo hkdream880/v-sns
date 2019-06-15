@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { User, Contents, HashTag, Replies, Room, Chat, sequelize } = require('../models');
+const { User, Contents, HashTag, Replies, Room, Chat, sequelize, Sequelize } = require('../models');
 const queryOption = require('sequelize').Op;
 const bcrypt = require('bcrypt');
 const { isLoggedIn, isNotLoggedIn } = require('./loginCheck');
@@ -241,12 +241,17 @@ router.get('/find-user',isLoggedIn, async (req, res, next)=>{
 router.post('/add-follow',isLoggedIn,async (req, res, next)=>{
   try {
     const user = await User.findOne({where : {id:req.user.id}});
-    const targetUser = await User.findOne({where : {id:req.body.addId}});
+    const targetUser = await User.findOne(
+      {
+        where : {id:req.body.addId},
+        attributes: ['id','email','profile']
+      }
+    );
     await user.addFollowing(targetUser);
     
     return res.status(200).json({
       code: 200,
-      data: 'success'
+      data: targetUser
     })
   } catch (error) {
     console.error(error);
@@ -290,7 +295,11 @@ router.post('/chat',isLoggedIn,async (req, res, next )=>{
       userId: req.user.id,
       roomId: req.body.roomId
     });
-    req.app.get('io').of('/chat').to(req.body.roomId).emit('chat',newChat);
+    const user = await User.findOne({
+      where : {id:req.user.id},
+      attributes: ['id','email','profile']
+    });
+    req.app.get('io').of('/chat').to(req.body.roomId).emit('chat',newChat,user);
     return res.status(200).json({
       code: 200,
       data: newChat
@@ -325,6 +334,26 @@ router.post('/check-room',isLoggedIn,async (req, res, next)=>{
       await user.addRoom(RoomResult);
       await targetUser.addRoom(RoomResult);
       returnValue = RoomResult.id;
+      const io = req.app.get('io');
+      const newRoom = await Room.findOne({
+        include: [{
+          model: User,
+          attributes: ['id','email','profile'],
+          as: 'userForRoom',
+          where: { id : req.user.id }
+        },{
+          model: Chat,
+          limit: 1,
+          order: [ [ 'createdAt', 'DESC' ]]
+        },{
+          model: User,
+          attributes: ['id','email','profile'],
+          where: { id : {[queryOption.ne]: req.user.id} }
+        }],
+        attributes: ['id'],
+        where: {id: RoomResult.id}
+      })
+      io.of('/room').emit('new', newRoom);
     }else if(resultValue.length>1){
       throw Error({
         name: '500',
@@ -351,15 +380,19 @@ router.get('/room-list',isLoggedIn,async (req, res, next)=>{
     const roomList = await Room.findAll({
       include: [{
         model: User,
-        through: 'roomUser',
-        where: { id: req.user.id },
         attributes: ['id','email','profile'],
+        as: 'userForRoom',
+        where: { id : req.user.id }
       },{
         model: Chat,
         limit: 1,
         order: [ [ 'createdAt', 'DESC' ]]
+      },{
+        model: User,
+        attributes: ['id','email','profile'],
+        where: { id : {[queryOption.ne]: req.user.id} }
       }],
-      attributes: ['id']
+      attributes: ['id'],
     })
     return res.status(200).json({
       code: 200,
