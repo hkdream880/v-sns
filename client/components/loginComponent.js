@@ -66,6 +66,8 @@ var loginComponent = {
         this.setSessionStorage('authorizationToken',response.data.token);
         this.loginState = true;
         this.$emit('setlogin',true)
+        this.$emit('setuserinfo',response.data.info);
+        this.$emit('getroomlist');
         console.log(this.loginState);
         this.closeLogin();
       }else{

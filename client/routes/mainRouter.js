@@ -31,12 +31,8 @@ var approuter = new VueRouter({
     },
     {
       path: '/chat/:roomId', 
-      components: {
-        default: Chat
-      },
-      props: {
-        default: true,
-      }
+      component: Chat,
+      props: true,
     },
   ]
 });

@@ -285,19 +285,15 @@ router.get('/follow',isLoggedIn, async (req, res, next)=>{
 
 router.post('/chat',isLoggedIn,async (req, res, next )=>{
   try {
-    const test = await Chat.create({
+    const newChat = await Chat.create({
       chat: req.body.chat,
       userId: req.user.id,
       roomId: req.body.roomId
     });
-    req.app.get('io').of('/chat').to(req.body.roomId).emit('chat',{
-      chat: req.body.chat,
-      userId: req.user.id,
-      roomId: req.body.roomId
-    });
+    req.app.get('io').of('/chat').to(req.body.roomId).emit('chat',newChat);
     return res.status(200).json({
       code: 200,
-      data: test
+      data: newChat
     }) 
   } catch (error) {
     console.error(error);
@@ -357,7 +353,11 @@ router.get('/room-list',isLoggedIn,async (req, res, next)=>{
         model: User,
         through: 'roomUser',
         where: { id: req.user.id },
-        attributes: ['id','email','profile']
+        attributes: ['id','email','profile'],
+      },{
+        model: Chat,
+        limit: 1,
+        order: [ [ 'createdAt', 'DESC' ]]
       }],
       attributes: ['id']
     })

@@ -78,7 +78,7 @@ var TimeLine = {
       uploadSns: function(e){ //sns 업로드
         var formData = new FormData();
         formData.append('content', this.message);
-        
+        var header = this.getHeader();
         if(this.imgFile){ //이미지 있을 경우
           header.enctype = 'multipart/form-data',
           formData.append('image', this.imgFile);
@@ -89,7 +89,7 @@ var TimeLine = {
 
         this.$http({
           url: '/v1/write',
-          headers: this.getHeader(),
+          headers: header,
           method: 'post',
           data: formData
         }).

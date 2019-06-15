@@ -4,9 +4,7 @@ Vue.use(VueRouter)
 Vue.prototype.$EventBus = new Vue();  //이벤트 버스
 app = new Vue({
   mixins: [mixins],
-  data: {
-    loginState: false,
-  },
+  data: common.data,
   components: {
     modalComponent: modalComponent,
     headerComponent: headerComponent,

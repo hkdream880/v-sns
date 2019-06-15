@@ -18,17 +18,17 @@ var Chat = {
                 </div>
               </div>
               <div class="inbox_chat">
-
-                <div class="chat_list active_chat" v-for="room in roomList">
+              <router-link to="/chat/1" >
+                <div class="chat_list" v-bind:class="{ active_chat: room.id==roomId }" v-for="room in roomlist">
                   <div class="chat_people">
                     <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                     <div class="chat_ib">
-                      <h5>TBD <span class="chat_date">Dec 25</span></h5>
+                      <h5>{{room.chats[0].chat}} <span class="chat_date">Dec 25</span></h5>
                       <p>Chat prototype</p>
                     </div>
                   </div>
                 </div>
-
+                </router-link>
               </div>
             </div>
             <div class="mesgs">
@@ -36,8 +36,8 @@ var Chat = {
                 <div class="incoming_msg">
                   <div v-for="chat in chatList">
 
-                  <div v-if="chat.userId !== userInfo.id" class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                    <div v-if="chat.userId !== userInfo.id" class="received_msg">
+                  <div v-if="chat.userId !== userinfo.id" class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                    <div v-if="chat.userId !== userinfo.id" class="received_msg">
                       <div class="received_withd_msg">
                         <p>
                           {{chat.chat}}
@@ -45,7 +45,7 @@ var Chat = {
                         <span class="time_date"> 11:01 AM    |    June 9</span></div>
                     </div>
                   
-                    <div v-if="chat.userId === userInfo.id" class="outgoing_msg">
+                    <div v-if="chat.userId === userinfo.id" class="outgoing_msg">
                     <div class="sent_msg">
                       <p>
                         {{chat.chat}}
@@ -69,12 +69,10 @@ var Chat = {
           <p class="text-center top_spac"> Design by <a target="_blank" href="#">Sunil Rajput</a></p>
         </div>
       </div>`,
-  props: ['roomId'],
+  props: ['roomId','roomlist','userinfo'],
   data: function(){
     return {
       socket: null,
-      roomList: global.chatRoomList,
-      userInfo: global.userInfo,
       chatList: [],
       chat: '',
     }
@@ -82,32 +80,52 @@ var Chat = {
   methods: {
     init: function(vm){
       console.log('chat component init');
-      /*
-      TODO
-        - 방 목록과 해당 방 목록의 마지막 채팅 내용 받기
-        - 방 번호 있으면 해당 채팅 활성화
-      */
-      if(this.roomId==='none'){
-        this.chatList = [];
-      }else{
-        this.getChat();
-      }
+      this.getChat();
     },
     getChat: function(){
+      if(this.roomId==='none'){
+        this.chatList = [];
+        return;
+      }
       console.log('getChat called res: ');
-      global.request('get','/v1/chat-contents',{roomId: this.roomId},null,
-      $.proxy(function(res){
+      this.$http({
+        url: '/v1/chat-contents',
+        headers: this.getHeader(),
+        method: 'get',
+        params: {roomId: this.roomId}
+      }).then($.proxy(function(res){
         console.log(res.data);
-        this.chatList = res.data;
-      },this))
+        this.chatList = res.data.data;
+      },this));
+    },
+    getNewChat: function(chatObj){
+      console.log('getNewChat called');
+      console.log(chatObj)
+      if(chatObj.roomId==this.roomId){
+        this.chatList.push(chatObj);
+      }
+      for(var i=0;i<this.roomlist.length;i++){
+        if(this.roomlist[i].id==chatObj.roomId){
+          this.roomlist[i].chats[0] = chatObj;
+          break;
+        }
+      }
+    },
+    setLastChat: function(chatObj){
+      
     },
     sendChat: function(){
       console.log('sendChat called');
-      global.request('post','/v1/chat',{chat: this.chat,roomId: this.roomId},null,
-      $.proxy(function(res){
+      this.$http({
+        url: '/v1/chat',
+        headers: this.getHeader(),
+        method: 'post',
+        data: {chat: this.chat,roomId: this.roomId}
+      }).then($.proxy(function(res){
         console.log(res);
-      },this),
-      $.proxy(function(err){
+        console.log(this.chatList);
+        this.chat = '';
+      },this)).catch($.proxy(function(err){
         console.log(err);
       },this));
     }
@@ -117,12 +135,19 @@ var Chat = {
       return this.roomId==='none'?'채팅방을 선택 해 주세요':'메세지를 입력 해 주세요';
     }
   },
+  watch : {
+    roomId : function(data){
+      console.log('room changed!! roomId : ',data);
+      this.getChat();
+    }
+  },
+  mixins: [mixins],
+  created: function(){
+    //getNewChat
+    this.$EventBus.$on('newchat',this.getNewChat);
+  },
   beforeRouteEnter (to, from, next) {
     next(function(vm){
-      // commonUtil.getInstance().setNowRouter(vm);
-      console.log('router test !@@@@@@@@@@@@@@');
-      console.log(vm);
-      console.log(global.vm.$children);
       vm.init();
     });
   },

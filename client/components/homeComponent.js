@@ -63,13 +63,16 @@ var Home = {
     socketTest: function(socketIdx){
       console.log('socketTest');
       console.log(socketIdx);
-      // global.request('post','/v1/chat',{chat: 'testChat',roomId: socketIdx},null,
-      // $.proxy(function(res){
-      //   console.log(res);
-      // },this),
-      // $.proxy(function(err){
-      //   console.log(err);
-      // },this));
+      this.$http({
+        url: '/v1/chat',
+        headers: this.getHeader(),
+        method: 'post',
+        data: {chat: 'testChat',roomId: socketIdx}
+      }).then($.proxy(function(res){
+        console.log(res);
+      },this)).catch($.proxy(function(err){
+        console.log(err);
+      },this));
     },
     socketDisconnect: function(){
       //global.socket.disconnect();

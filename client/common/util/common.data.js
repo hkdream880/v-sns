@@ -1,6 +1,8 @@
 common.data = {
   loginState: false,
   chatRoomList: [],
+  chatSocket: null,
+  userInfo: null,
 };
 
 // var global = {

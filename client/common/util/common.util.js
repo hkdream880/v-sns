@@ -1,8 +1,16 @@
 var common = {};
 common.util = {
+
+  setUserInfo: function(info){
+    if(info){
+      this.userInfo = info;
+    }
+  },
+
   setLoginState: function(state){
     this.loginState = state;
   },
+
   isLogin : function(callback,fail){
     console.log('_isLogin check called');
     this.$http({
@@ -17,12 +25,13 @@ common.util = {
       }
     },this)).catch($.proxy(function(err){
       this.loginState = false;
-      this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+      //this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
       if(fail){
         fail();
       }
     },this));
   },
+
   setCookie: function(key, value, exp) {
     var date = new Date();
     date.setTime(date.getTime() + exp*24*60*60*1000);
@@ -37,6 +46,7 @@ common.util = {
   deleteCookie: function(key) {
     document.cookie = key + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   },
+
   getRoomList: function(callback){
     console.log('getRoomList')
       this.$http({
@@ -48,10 +58,47 @@ common.util = {
         console.log(this.chatRoomList);
         //TODO 소켓 연결
         //global.socketManager.socketInit(res.data,callback);
+        this.socketInit(this.chatRoomList);
       },this)).catch($.proxy(function(err){
         console.log(err.response);
       },this));
-  } 
+  },
+
+  socketInit: function(roomList,callback){
+    console.log('socketInit called');
+    roomList.forEach($.proxy(function(data,idx){
+      console.log('roomList.forEach idx : ',idx);
+      this.connectSocket(data.id);
+      this.bindSocketEvetn(this.chatSocket);
+    },this))
+    if(callback){
+      callback();
+    }
+  },
+  connectSocket: function(roomId){
+    console.log(`connectSocket called : ${roomId }`);
+    this.chatSocket = io.connect('http://localhost:3000/chat', {
+      path: '/v-chat',
+      query: `roomId=${roomId }`
+    });
+  },
+  bindSocketEvetn: function(socket){
+    socket.on('join',function(data){
+      console.log('socket join event called ',data);
+    });
+    socket.on('exit',function(){
+      console.log('socket exit event called');
+    });
+    socket.on('chat',$.proxy(function(data){
+      console.log('socket chat event called data : ',data);
+      console.log('router info : ',this.$router.currentRoute.path);
+      if(this.$router.currentRoute.path.indexOf('/chat/')>=0){
+        this.$EventBus.$emit('newchat',data)
+      }else{
+        //show modal or toast
+      }
+    },this));
+  }
 };
 
 

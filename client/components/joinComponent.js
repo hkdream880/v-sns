@@ -37,31 +37,28 @@ var Join = {
       errMsg: '',
       isHide: true,
     }
-  }, 
+  },
+  mixins: [mixins],
   methods: {
     doJoin: function(e){
       //var request = function(method, url, param, header,success, fail, option){
       if(this.password!==this.chkPassword){
-        this.showAlert('비밀번호를 확인 해 주세요');
+        this.$EventBus.$emit('showAlert','비밀번호를 확인 해 주세요');
         return
       }
-      request('post','/v1/join',{ email: this.email, password: this.password, phone: this.phone },null,
-      $.proxy(function(res){
+      this.$http({
+        url: '/v1/join',
+        headers: this.getHeader(),
+        method: 'post',
+        data: { email: this.email, password: this.password, phone: this.phone },
+      }).then($.proxy(function(res){
         console.log('join success');
         console.log(res);
-      },this),
-      $.proxy(function(err){
+      },this)).catch($.proxy(function(err){
         console.log('join fail');
         console.log(err);
-        this.showAlert(err.data)
-      },this))
-    },
-    showAlert: function(msg){
-      this.errMsg = msg;
-      this.isHide = false;
-      setTimeout($.proxy(function(){
-        this.isHide = true;
-      },this),3000)
+        this.$EventBus.$emit('showAlert',err.response.data,err.response.code);
+      },this));
     }
   },
 };
