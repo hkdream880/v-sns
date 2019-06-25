@@ -1,7 +1,9 @@
+require('dotenv').config();
+module.exports = 
 {
   "development": {
     "username": "root",
-    "password": "1111",
+    "password": process.env.SEQUELIZE_PASSWORD,
     "database": "v_sns",
     "host": "127.0.0.1",
     "dialect": "mysql",
@@ -9,7 +11,7 @@
   },
   "test": {
     "username": "root",
-    "password": "1111",
+    "password": process.env.SEQUELIZE_PASSWORD,
     "database": "v_sns",
     "host": "127.0.0.1",
     "dialect": "mysql",
@@ -17,10 +19,12 @@
   },
   "production": {
     "username": "root",
-    "password": "1111",
+    "password": process.env.SEQUELIZE_PASSWORD,
     "database": "v_sns",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "operatorsAliases": "false"
+    "operatorsAliases": "false",
+    "logging":false,  //sequelize sql log를 남기지 않도록
   }
-}
+};
+//각자 필요에 따라 설정 할 것
