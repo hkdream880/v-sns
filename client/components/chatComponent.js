@@ -163,4 +163,4 @@ var Chat = {
   beforeRouteLeave (to, from, next) {
     next();
   }   
-}
+};

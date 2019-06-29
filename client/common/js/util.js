@@ -1,5 +1,4 @@
-var common = {};
-common.util = {
+var util = {
 
   setUserInfo: function(info){
     if(info){
@@ -94,9 +93,9 @@ common.util = {
     },this));
   },
   connectChatSocket: function(roomId){
-    console.log(`connectSocket called : ${roomId }`);
-    this.chatSocket = io(`http://localhost:3000/chat?roomId=${roomId }`,{
-      query: `roomId=${roomId }`,
+    console.log('connectSocket called : '+roomId);
+    this.chatSocket = io('http://localhost:3000/chat?roomId='+roomId,{
+      query: 'roomId='+roomId,
       path: '/v-chat',
     });
   },

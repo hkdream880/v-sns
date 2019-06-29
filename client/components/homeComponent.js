@@ -26,7 +26,7 @@ var Home = {
     showLogin: function(){
       console.log('showLogin');
       this.$EventBus.$emit('showLogin');
-      console.log(this.$EventBus)
+      console.log(this.$EventBus);
     },
   },
   props: ['loginstate'],

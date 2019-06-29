@@ -12,10 +12,12 @@
   코어 1개-> fork 모드 , 멀티코어 cluster 모드
   클라우드 환경에서는 console.log console.error 도 기록되지만, 아닐 경우를 위해 winston or log4js 설치
 
-  npm 모듈 (node version manager)
+  nvm 모듈 (node version manager)
   -> win => npm i nvm 이 아닌 직접 설치파일 다운로드 받아서 설치 ㅎㅎ
   -> linux or mac => npm i n 
   - nvm install latest -> 최신 node , npm 설치 등등
+
+  실행 -> cdn에서 manifest 가져 온 후 css, js 설정
 */
 
 require('dotenv').config();
@@ -36,6 +38,8 @@ const app = express();
 const logger = require('./logger');
 const helmet = require('helmet');
 const hpp = require('hpp');
+const axios = require('axios');
+const cdn = require('./config/cdn.config.json')[process.env.NODE_ENV || 'development'].CDN;
 //-> logger.info() console.info 대체 , logger.error() => console.error 대체
 
 sequelize.sync();
@@ -45,6 +49,7 @@ passportConfig(passport);
 app.set('views', path.join(__dirname, 'view'));
 app.set('view engine', 'ejs');
 app.engine('html',require('ejs').renderFile);
+setStaticContents();
 
 if(process.env.NODE_ENV === 'production'){  
   app.use(morgan('combined'));
@@ -83,5 +88,24 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+function setStaticContents(){
+  axios({
+    url: cdn+'/manifest.json',
+    method: 'get',
+  })
+  .then((res)=>{
+    console.log(res);
+    Object.keys(res.data).map((key)=>{
+      app.locals[key.split('.')[0]] = res.data[key];
+    });
+    app.locals.CDN = cdn;
+  })
+  .catch((err)=>{
+    logger.error(err);
+    console.log(err);
+    setTimeout(setStaticContents,3000);
+  })
+};
 
 module.exports = app;

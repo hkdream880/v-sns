@@ -7,6 +7,8 @@ var build = function (){
   var _importArr = [];
 
   _importArr.push(`<script src='./v-chat/socket.io.js'></script>`);
+  
+  //vendor.js
   _importArr.push(`<script src="./common/lib/vue.js"></script>`);
   _importArr.push(`<script src="./common/lib/vue-router.js"></script>`);
   _importArr.push(`<script src="./common/lib/axios.js"></script>`);

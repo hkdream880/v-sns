@@ -166,4 +166,4 @@ var FriendsList = {
   beforeRouteLeave (to, from, next) {
     next();
   }
-}
+};

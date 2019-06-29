@@ -1,4 +1,4 @@
-common.data = {
+var data = {
   loginState: false,
   chatRoomList: [],
   chatSocket: null,

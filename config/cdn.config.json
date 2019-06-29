@@ -1,0 +1,11 @@
+{
+  "development": {
+    "CDN": "http://localhost:3001"
+  },
+  "stage": {
+    "CDN": ""
+  },
+  "production": {
+    "CDN": ""
+  }
+}
