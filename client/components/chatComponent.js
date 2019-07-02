@@ -97,13 +97,20 @@ var Chat = {
       }).then($.proxy(function(res){
         console.log(res.data);
         this.chatList = res.data.data;
+        //this.refreshScroll();
       },this));
+    },
+    refreshScroll: function(){
+      setTimeout(function(){
+        $('.msg_history').scrollTop($('.incoming_msg').height());
+      },0);
     },
     getNewChat: function(chatObj){
       console.log('getNewChat called');
       console.log(chatObj)
       if(chatObj.roomId==this.roomId){
         this.chatList.push(chatObj);
+        //this.refreshScroll();
       }
       for(var i=0;i<this.roomlist.length;i++){
         if(this.roomlist[i].id==chatObj.roomId){
@@ -133,6 +140,7 @@ var Chat = {
         this.chat = '';
       },this)).catch($.proxy(function(err){
         console.log(err);
+        this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
       },this));
     }
   },
@@ -145,15 +153,19 @@ var Chat = {
     roomId : function(data){
       console.log('room changed!! roomId : ',data);
       this.getChat();
+    },
+    chatList: function(){
+      this.refreshScroll();
     }
   },
   mixins: [mixins],
   created: function(){
     //getNewChat
     this.$EventBus.$on('newchat',this.getNewChat);
+    
   },
   mounted: function(){
-    
+
   },
   beforeRouteEnter (to, from, next) {
     next(function(vm){

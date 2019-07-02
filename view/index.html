@@ -12,11 +12,11 @@
 <body>
   <div id="app">
     <header-component></header-component>
+    <alert-component></alert-component>
     <router-view v-bind:loginstate="loginState" v-bind:roomlist="chatRoomList" v-bind:userinfo="userInfo" ></router-view>
     <modal-component></modal-component>
     <br>
     <br>
-    <alert-component></alert-component>
     <login-component 
       v-on:setlogin="setLoginState"
       v-on:setuserinfo="setUserInfo"

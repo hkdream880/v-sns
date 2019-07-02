@@ -24,6 +24,7 @@ var util = {
       }
     },this)).catch($.proxy(function(err){
       this.loginState = false;
+      this.chatRoomList= []
       this.$EventBus.$emit('showAlert',err.response.data.data,err.response.data.code);
       if(fail){
         fail();

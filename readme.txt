@@ -3,4 +3,9 @@ global npm module
 - npm i pm2 -g
 
 
-mysql8
+ENV
+-node v10 
+-mysql v8
+
+before start project
+-> cmd/ sequelize db:create v_sns  or create schema

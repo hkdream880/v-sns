@@ -30,7 +30,7 @@ var FriendsList = {
           <img src="./common/img/coffie.jpg" class="rounded v-profile" alt="...">
           {{item.email}}
           <!-- 친구 목록 -->
-          <button type="button" class="btn btn-primary" @click="moveChat(item.id)">Chat</button>
+          <button type="button" class="btn btn-primary" @click="moveChat(item.id)">Chat / {{item.id}}</button>
           <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">Delete</button>
         </li>
       </ul>

@@ -14,7 +14,7 @@ var headerComponent = {
         <router-link to="/friends" class="nav-link">Friends List</router-link>
       </li>
       <li class="nav-item">
-        <router-link to="/chat/none" class="nav-link">chat test</router-link>
+        <router-link to="/chat/none" class="nav-link">Chat</router-link>
       </li>
     </ul>
   </div>
