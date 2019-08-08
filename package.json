@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "nodemonConfig": {
-    "ignore": ["client/*"],
+    "ignore": [
+      "client/*"
+    ],
     "delay": "1000"
   },
   "scripts": {
